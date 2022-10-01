@@ -755,6 +755,7 @@ public class StimulatorWindow {
 		
 		RunLabel = new JLabel("RUN");
 		RunLabel.setFont(new Font("Tahoma", Font.BOLD, 22));
+		RunLabel.setForeground(Color.BLACK);
 		
 		HaltLabel = new JLabel("HALT");
 		HaltLabel.setForeground(Color.BLACK);
