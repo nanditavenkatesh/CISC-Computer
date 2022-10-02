@@ -1,3 +1,9 @@
+/*
+ * The Simulator Window class is used to create the GUI with buttons to Load Store and Run
+ * It also has display box to show the values present in each of the component in the system
+ * The switch buttons are used to enter commands in binary
+ * The values entered are processed and the results are displayed in the screen
+ */
 package Simulator;
 
 import java.awt.EventQueue;
@@ -132,6 +138,7 @@ public class StimulatorWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		//Frame title
 		CSCIProjectTeam7 = new JFrame();
 		CSCIProjectTeam7.getContentPane().setFont(new Font("Lucida Calligraphy", Font.PLAIN, 12));
 		CSCIProjectTeam7.setBackground(new Color(105, 105, 105));
@@ -156,7 +163,7 @@ public class StimulatorWindow {
 			public void focusGained(FocusEvent e) {
 			}
 		});
-		
+		//Address panel has the switch bits to hold the memory address values
 		AddressPanel = new JPanel();
 		AddressPanel.setBackground(new Color(192, 192, 192));
 		AddressPanel.addFocusListener(new FocusAdapter() {
@@ -164,7 +171,7 @@ public class StimulatorWindow {
 			public void focusGained(FocusEvent e) {
 			}
 		});
-		
+		//GPR panel has the switch bits to access the respective GPRs
 		GPRPanel = new JPanel();
 		GPRPanel.setBackground(new Color(192, 192, 192));
 		GPRPanel.addFocusListener(new FocusAdapter() {
@@ -172,7 +179,7 @@ public class StimulatorWindow {
 			public void focusGained(FocusEvent e) {
 			}
 		});
-		
+		//IXR panel has the switch bits to access the respective IXRs
 		IXRPanel = new JPanel();
 		IXRPanel.setBackground(new Color(192, 192, 192));
 		IXRPanel.addFocusListener(new FocusAdapter() {
@@ -180,7 +187,7 @@ public class StimulatorWindow {
 			public void focusGained(FocusEvent e) {
 			}
 		});
-		
+		//The Direct Indirect Switch Bit is used to show direct/indirect addressing
 		IPanel = new JPanel();
 		IPanel.setBackground(new Color(192, 192, 192));
 		IPanel.addFocusListener(new FocusAdapter() {
@@ -203,10 +210,9 @@ public class StimulatorWindow {
 		AddressBit04.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[4]=AddressBit04;
 		AddressBit04.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				setBackgroundColourOnClick(AddressBit04);
 			}
 		});
@@ -216,10 +222,9 @@ public class StimulatorWindow {
 		AddressBit03.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[3]=AddressBit03;
 		AddressBit03.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				setBackgroundColourOnClick(AddressBit03);
 			}
 		});
@@ -230,10 +235,9 @@ public class StimulatorWindow {
 		AddressBit02.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[2]=AddressBit02;
 		AddressBit02.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				setBackgroundColourOnClick(AddressBit02);
 			}
 		});
@@ -243,10 +247,9 @@ public class StimulatorWindow {
 		AddressBit01.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[1]=AddressBit01;
 		AddressBit01.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				setBackgroundColourOnClick(AddressBit01);
 			}
 		});
@@ -256,14 +259,15 @@ public class StimulatorWindow {
 		AddressBit00.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[0]=AddressBit00;
 		AddressBit00.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(AddressBit00);
 				
 			}
 		});
+		//Adjusting the panel dimensions
 		GroupLayout gl_AddressPanel = new GroupLayout(AddressPanel);
 		gl_AddressPanel.setHorizontalGroup(
 			gl_AddressPanel.createParallelGroup(Alignment.LEADING)
@@ -312,13 +316,14 @@ public class StimulatorWindow {
 		IBit05.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[5]=IBit05;
 		IBit05.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(IBit05);
 			}
 		});
+		//Adjusting the panel dimensions
 		GroupLayout gl_IPanel = new GroupLayout(IPanel);
 		gl_IPanel.setHorizontalGroup(
 			gl_IPanel.createParallelGroup(Alignment.LEADING)
@@ -352,10 +357,10 @@ public class StimulatorWindow {
 		IXRBit07.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[7]=IXRBit07;
 		IXRBit07.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 					setBackgroundColourOnClick(IXRBit07);
 			}
 		});
@@ -365,13 +370,14 @@ public class StimulatorWindow {
 		IXRBit06.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[6]=IXRBit06;
 		IXRBit06.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 					setBackgroundColourOnClick(IXRBit06);
 			}
 		});
+		//Adjusting the panel dimensions
 		GroupLayout gl_IXRPanel = new GroupLayout(IXRPanel);
 		gl_IXRPanel.setHorizontalGroup(
 			gl_IXRPanel.createParallelGroup(Alignment.LEADING)
@@ -403,10 +409,10 @@ public class StimulatorWindow {
 		GPRBit09.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[9]=GPRBit09;
 		GPRBit09.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(GPRBit09);
 			}
 		});;
@@ -424,13 +430,14 @@ public class StimulatorWindow {
 		GPRBit08.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[8]=GPRBit08;
 		GPRBit08.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(GPRBit08);
 			}
 		});;
+		//Adjusting the panel dimensions
 		GroupLayout gl_GPRPanel = new GroupLayout(GPRPanel);
 		gl_GPRPanel.setHorizontalGroup(
 			gl_GPRPanel.createParallelGroup(Alignment.LEADING)
@@ -470,10 +477,10 @@ public class StimulatorWindow {
 		OperationBit15.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[15]=OperationBit15;
 		OperationBit15.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(OperationBit15);
 			}
 		});
@@ -483,10 +490,10 @@ public class StimulatorWindow {
 		OperationBit14.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[14]=OperationBit14;
 		OperationBit14.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(OperationBit14);
 			}
 		});
@@ -496,10 +503,10 @@ public class StimulatorWindow {
 		OperationBit13.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[13]=OperationBit13;
 		OperationBit13.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(OperationBit13);
 			}
 		});
@@ -509,10 +516,10 @@ public class StimulatorWindow {
 		OperationBit12.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[12]=OperationBit12;
 		OperationBit12.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(OperationBit12);
 			}
 		});
@@ -522,10 +529,10 @@ public class StimulatorWindow {
 		OperationBit11.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[11]=OperationBit11;
 		OperationBit11.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(OperationBit11);
 			}
 		});
@@ -535,13 +542,14 @@ public class StimulatorWindow {
 		OperationBit10.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bitArray[10]=OperationBit10;
 		OperationBit10.addActionListener(new ActionListener() {
-			
+			//On click the color of the switch is changed to indicate change in status
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				setBackgroundColourOnClick(OperationBit10);
 			}
 		});
+		//Adjusting the panel dimensions
 		GroupLayout gl_OperationPanel = new GroupLayout(OperationPanel);
 		gl_OperationPanel.setHorizontalGroup(
 			gl_OperationPanel.createParallelGroup(Alignment.LEADING)
@@ -588,6 +596,8 @@ public class StimulatorWindow {
 		
 		AddressRegisterPanel = new JPanel();
 		AddressRegisterPanel.setBackground(new Color(105, 105, 105));
+		
+		//Adjusting the panel dimensions
 		
 		ButtonPanel = new JPanel();
 		ButtonPanel.setToolTipText("MFR");
@@ -637,28 +647,28 @@ public class StimulatorWindow {
 						.addComponent(IPanel, GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
 					.addContainerGap())
 		);
-		
+		//Store Button is used to store the value into the specified memory address
 		StoreButton = new JButton("STORE");
 		StoreButton.setFont(new Font("Calibri", Font.BOLD, 26));
 		StoreButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				//On click the MAR and MBR value are fetched and the value is written into the specified address
 				String addr = MAR.getText();
 				String value = MBR.getText();
 				memory.setValue(addr, value);
 				resetBitValue();
 			}
 			});
-		
+		//Performs the Same action as Store but also increments the value of MAR by 1
 		StorePlus = new JButton("S+");
 		StorePlus.setFont(new Font("Calibri", Font.BOLD, 26));
 		StorePlus.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				//On click the MAR and MBR value are fetched and the value is written into the specified address and the MAR is auto incremented by 1
 				String addr = MAR.getText();
 				String value = MBR.getText();
 				int nextaddr = cbi.ToInteger(addr) + 1;
@@ -667,32 +677,33 @@ public class StimulatorWindow {
 				resetBitValue();
 			}
 			});
-		
+		//Load button is used to fetch the data from memory
 		LoadButton = new JButton("LOAD");
 		LoadButton.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				//On click the MAR value is fetched and the value present in the corresponding memory address is displayed
 				String addr = MAR.getText();
 				int i = memory.getValue(addr);
 				MBR.setText(cib.ToBinary(i));
 				resetBitValue();
 			}
 			});
-		
+		//Run button runs the set of instructions from the specified location given by the Program Counter until it hits a HALT instruction
 		RunButton = new JButton("RUN");
 		RunButton.setFont(new Font("Calibri", Font.BOLD, 26));
 		RunButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				//On click the PC value is fetched and the subsequent instructions are executed until a HALT instruction is encountered
 				String PCvalue = PC.getText();
 				int i = memory.getValue(PCvalue);
 				IR.setText(cib.ToBinary(i));
 				ir.setValue(i);
+				//When the instruction is not a Halt the operation is executed
 				while(cbi.ToInteger(ir.IROperation())>0) {
 					HaltLabel.setForeground(Color.BLACK);
 					operation(ir);
@@ -701,18 +712,20 @@ public class StimulatorWindow {
 					IR.setText(cib.ToBinary(i));
 					ir.setValue(i);					
 				}
+				//Once HALT is encountered the IR displays HALT code value and Halt Glows Green
 				HaltLabel.setForeground(Color.GREEN);
 				resetBitValue();
 			}
 			});
-		
+		//Single Step is used to execute the instructions step by step manually until a HALT instruction is encountered
 		SingleStep = new JButton("SS");
 		SingleStep.setFont(new Font("Calibri", Font.BOLD, 26));
 		SingleStep.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				//On Click gets the PC value and executed the operation retrieved form that location
+				//PC value is auto incremented after execution of one instruction
 				String PCvalue = PC.getText();
 				HaltLabel.setForeground(Color.BLACK);
 				int i = memory.getValue(PCvalue);
@@ -727,10 +740,11 @@ public class StimulatorWindow {
 			}
 			});
 		
-		
+		//The init button or IPL is used to reset the memory and then load the instructions specified in the file onto the memory
 		InitButton = new JButton("INIT");
 		InitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				///On click a pop-up window is displayed to choose a .txt file
 				FileReader newPopUpScreen = new FileReader();
 				fileContent = newPopUpScreen.fileText;
 				try {
@@ -738,7 +752,8 @@ public class StimulatorWindow {
 				}catch(Exception ex) {
 					ex.printStackTrace();
 				}
-				if (!fileContent.toString().isEmpty()) {
+				//The contents of the file is loaded onto the memory
+				if (!(fileContent.toString().isEmpty()||fileContent.toString().equalsIgnoreCase("No File was Selected"))) {
 					memory.clearMemory();
 					resetBitValue();
 					resetTextbox();
@@ -870,40 +885,41 @@ public class StimulatorWindow {
 		MemoryFaultRegister.setHorizontalAlignment(SwingConstants.CENTER);
 		MemoryFaultRegister.setFont(new Font("Calibri", Font.BOLD, 24));
 		
+		//The Program counter points to the address of the next instruction
 		LoadButtonPC = new JButton("LD");
 		LoadButtonPC.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonPC.setBackground(Color.LIGHT_GRAY);
 		LoadButtonPC.addActionListener(new ActionListener() {
-			
+			//On click the PC is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				PC.setText(GetBitValue12());
 				resetBitValue();
 			}
 		});
-		
+		//The MAR holds the address of the memory location in which the operation or values are recorded
 		LoadButtonMAR = new JButton("LD");
 		LoadButtonMAR.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonMAR.setBackground(Color.LIGHT_GRAY);
 		LoadButtonMAR.addActionListener(new ActionListener() {
-			
+			//On click the MAR is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				MAR.setText(GetBitValue12());
 				resetBitValue();
 			}
 		});
-		
+		//The MBR is a buffer that hold values to and from the memory
 		LoadButtonMBR = new JButton("LD");
 		LoadButtonMBR.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonMBR.setBackground(Color.LIGHT_GRAY);
 		LoadButtonMBR.addActionListener(new ActionListener() {
-			
+			//On click the MBR is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				MBR.setText(GetBitValue16());
 				resetBitValue();
 			}
@@ -970,7 +986,7 @@ public class StimulatorWindow {
 					.addGap(21))
 		);
 		AddressRegisterPanel.setLayout(gl_AddressRegisterPanel);
-		
+		//Registers R0-R3
 		GPR0 = new JTextField();
 		GPR0.setFont(new Font("Tahoma", Font.PLAIN, 26));
 		GPR0.setText("0000000000000000");
@@ -998,7 +1014,7 @@ public class StimulatorWindow {
 		GPR3.setEditable(false);
 		GPR3.setColumns(10);
 		GPR3.setBackground(SystemColor.menu);
-		
+		//Index Registers IX1-IX3
 		IXR1 = new JTextField();
 		IXR1.setFont(new Font("Tahoma", Font.PLAIN, 26));
 		IXR1.setText("0000000000000000");
@@ -1059,10 +1075,10 @@ public class StimulatorWindow {
 		LoadButtonGPR0.setBackground(new Color(192, 192, 192));
 		LoadButtonGPR0.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonGPR0.addActionListener(new ActionListener() {
-			
+			//On click the GPR0 is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				GPR0.setText(GetBitValue16());
 				resetBitValue();
 			}
@@ -1072,10 +1088,10 @@ public class StimulatorWindow {
 		LoadButtonGPR1.setBackground(new Color(192, 192, 192));
 		LoadButtonGPR1.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonGPR1.addActionListener(new ActionListener() {
-			
+			//On click the GPR1 is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				GPR1.setText(GetBitValue16());
 				resetBitValue();
 			}
@@ -1085,10 +1101,10 @@ public class StimulatorWindow {
 		LoadButtonGPR2.setBackground(new Color(192, 192, 192));
 		LoadButtonGPR2.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonGPR2.addActionListener(new ActionListener() {
-			
+			//On click the GPR2 is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				GPR2.setText(GetBitValue16());
 				resetBitValue();
 			}
@@ -1098,10 +1114,10 @@ public class StimulatorWindow {
 		LoadButtonGPR3.setBackground(new Color(192, 192, 192));
 		LoadButtonGPR3.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonGPR3.addActionListener(new ActionListener() {
-			
+			//On click the GPR3 is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				GPR3.setText(GetBitValue16());
 				resetBitValue();
 			}
@@ -1111,10 +1127,10 @@ public class StimulatorWindow {
 		LoadButtonIXR1.setBackground(new Color(192, 192, 192));
 		LoadButtonIXR1.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonIXR1.addActionListener(new ActionListener() {
-			
+			//On click the IXR1 is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				IXR1.setText(GetBitValue16());
 				resetBitValue();
 			}
@@ -1124,10 +1140,10 @@ public class StimulatorWindow {
 		LoadButtonIXR2.setBackground(new Color(192, 192, 192));
 		LoadButtonIXR2.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonIXR2.addActionListener(new ActionListener() {
-			
+			//On click the IXR2 is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				IXR2.setText(GetBitValue16());
 				resetBitValue();
 			}
@@ -1137,10 +1153,10 @@ public class StimulatorWindow {
 		LoadButtonIXR3.setBackground(new Color(192, 192, 192));
 		LoadButtonIXR3.setFont(new Font("Calibri", Font.BOLD, 26));
 		LoadButtonIXR3.addActionListener(new ActionListener() {
-			
+			//On click the IXR3 is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+				
 				IXR3.setText(GetBitValue16());
 				resetBitValue();
 			}
@@ -1241,6 +1257,9 @@ public class StimulatorWindow {
 		CSCIProjectTeam7.setBounds(100, 100, 1316, 684);
 		CSCIProjectTeam7.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+	/*
+	 * This method is used to reset the values displayed in the GUI after IPL or Init is executed
+	 */
 	public void resetTextbox() {
 		PC.setText("000000000000");
 		MAR.setText("000000000000");
@@ -1254,7 +1273,9 @@ public class StimulatorWindow {
 		IXR2.setText("0000000000000000");
 		IXR3.setText("0000000000000000");
 	}
-
+/*
+ * This method is used to change the Color of the switches when they are clicked to show the change in status
+ */
 	public void setBackgroundColourOnClick(JButton button){
 		if(button.getBackground().equals(Color.WHITE)){
 			button.setBackground(Color.PINK);
@@ -1263,6 +1284,9 @@ public class StimulatorWindow {
 			button.setBackground(Color.WHITE);
 		}	
 	}	
+	/*
+	 * This method is used to check the status of each switch and then fetch the 16 bit value from the corresponding state of each switch
+	 */
 	public String GetBitValue16() {
 		String s = "";
 		for (int i=bitArray.length-1;i>=0;i--) {
@@ -1276,6 +1300,9 @@ public class StimulatorWindow {
 		}
 		return s;
 	}
+	/*
+	 * This method is used to check the status of each switch and then fetch the 12 bit value from the corresponding state of each switch
+	 */
 	public String GetBitValue12() {
 		String s = "";
 		for (int i=11;i>=0;i--) {
@@ -1289,11 +1316,18 @@ public class StimulatorWindow {
 		}
 		return s;
 	}
+	/*
+	 * This method is used to reset the status of the switches after the click of a Load button
+	 * This enables the switches to return to a default state and ready for use for the next set of instructions
+	 */
 	public void resetBitValue() {
 		for (int i=bitArray.length-1;i>=0;i--) {
 			bitArray[i].setBackground(Color.WHITE);
 			}
 	}
+	/*
+	 * This method is used to check the status of each switch and then fetch the value of the GPR register to be accessed
+	 */
 	public void setGprValue(int n, int value) {
 		if(n == 0) {
 			GPR0.setText(cib.ToBinary(value));
@@ -1308,6 +1342,9 @@ public class StimulatorWindow {
 			GPR3.setText(cib.ToBinary(value));
 		}
 	}
+	/*
+	 * This method is used to check the status of each switch and then fetch the value of the IXR register to be accessed
+	 */
 	public int getIXRvalue(int n) {
 		int value = 0;
 		if(n == 1) {
@@ -1321,41 +1358,54 @@ public class StimulatorWindow {
 		}
 		return value;
 	}
+	/*
+	 * This method is used to increment PC values by 1
+	 */
 	public String addPCValue(String PCvalue) {
 		int nextValue = cbi.ToInteger(PCvalue) + 1;
 		return cib.ToBinary12(nextValue);
 	}
+	/*
+	 * This method is used to decode the operation instruction and fetch the corresponding values to perform the required operation
+	 */
 	public void operation(InstructionRegister ir) {
 		int i = 0;
 		String addr = cib.ToBinary12(cbi.ToInteger(ir.IRAddress()));
+		//Calling function from the IR Class to fetch the operation bits 
 		int operation = cbi.ToInteger(ir.IROperation()); 
+		//Calling function from the IR Class to fetch the GPR bits 
 		int gprNumber = cbi.ToInteger(ir.IRGprnumber());
+		//Calling function from the IR Class to fetch the Index Register bits 
 		int ixrnumber = cbi.ToInteger(ir.IRIndexNumber());
+		//Calling function from the IR Class to fetch the Indirect/Direct bit
 		int indirect = cbi.ToInteger(ir.IRIndirect());
 		if(operation == 1) {
 			MAR.setText(addr);
 			mar.setValue(addr);
+			//If indirect is 1 and IXR is 0 fetch the effective address from the memory
 			if(indirect==1 && ixrnumber== 0) {
 				int effectiveAddress = memory.getValue(addr);
 				i = memory.getValue(cib.ToBinary12(effectiveAddress));
 			}
+			//If indirect is 0 and IXR registers have value fetch the effective address by adding the IXR value to the value present in MAR
 			else if(indirect==0 && ixrnumber != 0) {
 				int ixrvalue = getIXRvalue(ixrnumber);
 				int effectiveAddress = ixrvalue + cbi.ToInteger(addr);
 				i = memory.getValue(cib.ToBinary12(effectiveAddress));
 			}
+			//
+			//If indirect is 1 and IXR registers have value fetch the effective address by first adding the IXR value to the value present in MAR
+		 	//and then the corresponding value present in memory
 			else if(indirect==1 && ixrnumber != 0) {
 				int ixrvalue = getIXRvalue(ixrnumber);
 				int effectiveAddress = memory.getValue(cib.ToBinary12(ixrvalue + cbi.ToInteger(addr)));
 				i = memory.getValue(cib.ToBinary12(effectiveAddress));
 			}
+			//if both indirect and IXR are 0 the value present in MAR is the effective address
 			else {
 				i = memory.getValue(addr);	
 			}
 			setGprValue(gprNumber, i);
-			
-		}
-		if(operation == 0) {
 			
 		}
 		

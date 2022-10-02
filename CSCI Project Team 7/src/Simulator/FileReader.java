@@ -6,13 +6,17 @@ import java.util.Scanner;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-
+/*
+ * FileReader Class is used to fetch a file from the system and decode the Hex Code
+ * into machine readable byte code
+ */
 public class FileReader {
 	
 	int noOfLines; 
 	JFileChooser chooser = new JFileChooser();
 	StringBuilder fileText = new StringBuilder();
 	
+	//Opens a new dialog box for the selection of a file and stores the contents of the file in a string builder
 	public void chooseFile() throws FileNotFoundException {
 	 
      FileNameExtensionFilter filter = new FileNameExtensionFilter("TXT", "txt");
@@ -35,6 +39,7 @@ public class FileReader {
     	 fileText.append("No File was Selected");
      }
    }
+	//Splits the commands in the file and stores each line from the file into a string array
 	public String[] getCommands(){
 		String[] fileLines =  fileText.toString().split("\n");
 		return fileLines;

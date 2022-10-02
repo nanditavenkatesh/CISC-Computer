@@ -3,25 +3,27 @@ package Registers;
 import java.util.logging.Logger;
 
 
- // The super class of register.
- // All register are extended from this class
+ /* The super class of register.
+  * All registers are extended from this class
+  */
 
 public class Register {
     private int value, length;
     private String name;
     final Logger logging = Logger.getLogger("CPU.Register");
-
+    
+    //Accepts the value, length and the Name of the register and creates the same with the respective size and name
     public Register(int value, int length, String name) {
         this.length = length;
         this.name = name;
         setValue(value);
     }
-
+    //Change to BinaryString
     public String ToBinaryString() {
-        String binaryStr = Integer.toBinaryString(value);// Change to BinaryString
+        String binaryStr = Integer.toBinaryString(value);
         String stringlength = "" + length;
         String format = "%0numberd".replace("number", stringlength);
-        return String.format(format, Long.valueOf(binaryStr));//
+        return String.format(format, Long.valueOf(binaryStr));
     }
 
     public int getValue() {
