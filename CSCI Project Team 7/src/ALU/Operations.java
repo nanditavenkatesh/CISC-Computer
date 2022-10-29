@@ -48,10 +48,11 @@ public class Operations {
 	private Devices cardReader= new Devices();
 	private ArrayList<Devices> deviceList = new ArrayList<Devices>();
 	private final static Logger logger = Logger.getLogger("OperationsLogger");
-	private ConsoleLog console = new ConsoleLog();
+	private ConsoleLog console;
 	
-	public Operations(Memory memory) {
+	public Operations(Memory memory, ConsoleLog console) {
 		this.memory = memory;
+		this.console = console;
 		gprList.add(gpr0); gprList.add(gpr1); gprList.add(gpr2); gprList.add(gpr3);
 		ixrList.add(ixr1); ixrList.add(ixr2); ixrList.add(ixr3); 
 		ccList.add(cc0); ccList.add(cc1); ccList.add(cc2); ccList.add(cc3);
@@ -718,7 +719,8 @@ public class Operations {
 		int value = gprList.get(register).getValue();
 		if(devid != 0) {
 			if(devid == 1) {
-				console.setText(String.valueOf(value));
+				JOptionPane.showInternalMessageDialog(null, "Printer value is " + String.valueOf(value));
+				console.setText("Printer value is" + String.valueOf(value));
 			}
 			else {
 				deviceList.get(devid).setValue(value);

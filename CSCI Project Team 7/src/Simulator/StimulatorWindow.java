@@ -115,7 +115,8 @@ public class StimulatorWindow {
 	private InstructionRegister ir = new InstructionRegister(0);
 	private PCRegister pc = new PCRegister(0);
 	private Memory memory = new Memory();
-	private Operations operations = new Operations(memory);
+	private ConsoleLog console = new ConsoleLog();
+	private Operations operations = new Operations(memory, console);
 	private GPRegister gpr0 = new GPRegister(0);
 	private GPRegister gpr1 = new GPRegister(1);
 	private GPRegister gpr2 = new GPRegister(2);
@@ -176,7 +177,8 @@ public class StimulatorWindow {
 		CSCIProjectTeam7.getContentPane().setFont(new Font("Lucida Calligraphy", Font.PLAIN, 12));
 		CSCIProjectTeam7.setBackground(new Color(105, 105, 105));
 		CSCIProjectTeam7.setFont(new Font("Dialog", Font.BOLD, 12));
-		CSCIProjectTeam7.setTitle("CSCI 6461 Project Team 7 Stimulator");		
+		CSCIProjectTeam7.setTitle("CSCI 6461 Project Team 7 Stimulator");
+		console.setVisible(false);
 		CSCIProjectTeam7.getContentPane().addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -794,8 +796,7 @@ public class StimulatorWindow {
 		ConsoleButton = new JButton("Console");
 		ConsoleButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ConsoleLog console = new ConsoleLog();
-				console.setVisible(false);
+				console.setVisible(true);
 			}
 		});
 		ConsoleButton.setFont(new Font("Calibri", Font.BOLD, 26));
