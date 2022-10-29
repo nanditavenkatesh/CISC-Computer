@@ -133,8 +133,6 @@ public class StimulatorWindow {
 	private ArrayList<ConditionCode> ccList = new ArrayList<ConditionCode>();
 	StringBuilder fileContent = new StringBuilder();
 	private ConvertHexToBinary H2B = new ConvertHexToBinary();
-	private JLabel Display;
-	private JTextField DispField;
 	private JButton ConsoleButton;
 	private JRadioButton CC0;
 	private JLabel ConditionCode0;
@@ -1302,24 +1300,12 @@ public class StimulatorWindow {
 				resetBitValue();
 			}
 		});
-		
-		Display = new JLabel("Disp");
-		Display.setVerticalAlignment(SwingConstants.BOTTOM);
-		Display.setHorizontalAlignment(SwingConstants.CENTER);
-		Display.setFont(new Font("Calibri", Font.BOLD, 24));
-		
-		DispField = new JTextField();
-		DispField.setFont(new Font("Tahoma", Font.PLAIN, 26));
-		DispField.setEditable(false);
-		DispField.setColumns(10);
-		DispField.setBackground(SystemColor.menu);
 		GroupLayout gl_GPRIXRPanel = new GroupLayout(GPRIXRPanel);
 		gl_GPRIXRPanel.setHorizontalGroup(
 			gl_GPRIXRPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_GPRIXRPanel.createSequentialGroup()
 					.addGap(33)
 					.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.TRAILING)
-						.addComponent(Display, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(GPR1Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(GPR2Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(GPR3Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
@@ -1356,23 +1342,18 @@ public class StimulatorWindow {
 						.addGroup(gl_GPRIXRPanel.createSequentialGroup()
 							.addComponent(GPR1, GroupLayout.PREFERRED_SIZE, 381, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(LoadButtonGPR1, GroupLayout.PREFERRED_SIZE, 97, GroupLayout.PREFERRED_SIZE))
-						.addComponent(DispField, GroupLayout.PREFERRED_SIZE, 381, GroupLayout.PREFERRED_SIZE))
+							.addComponent(LoadButtonGPR1, GroupLayout.PREFERRED_SIZE, 97, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap(16, Short.MAX_VALUE))
 		);
 		gl_GPRIXRPanel.setVerticalGroup(
 			gl_GPRIXRPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_GPRIXRPanel.createSequentialGroup()
-					.addGap(32)
-					.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.LEADING)
-						.addComponent(Display, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
-						.addComponent(DispField, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGap(80)
 					.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.TRAILING)
 						.addComponent(LoadButtonGPR0)
 						.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.BASELINE)
 							.addComponent(GPR0, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
-							.addComponent(GPR0Label, GroupLayout.DEFAULT_SIZE, 42, Short.MAX_VALUE)))
+							.addComponent(GPR0Label, GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.LEADING)
 						.addComponent(GPR1Label, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
