@@ -15,10 +15,13 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import ALU.Operations;
 import Memory.*;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.ArrayList;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
@@ -26,6 +29,8 @@ import java.awt.SystemColor;
 import javax.swing.JLabel;
 import Registers.*;
 import Utils.*;
+import javax.swing.JRadioButton;
+import java.awt.Component;
 
 
 
@@ -63,9 +68,11 @@ public class StimulatorWindow {
 	private JTextField GPR1;
 	private JTextField GPR2;
 	private JTextField GPR3;
+	private ArrayList<JTextField> GPRTextList = new ArrayList<JTextField>();
 	private JTextField IXR1;
 	private JTextField IXR2;
 	private JTextField IXR3;
+	private ArrayList<JTextField> IXRTextList = new ArrayList<JTextField>();
 	private JTextField PC;
 	private JTextField MAR;
 	private JTextField MBR;
@@ -104,13 +111,39 @@ public class StimulatorWindow {
 	private JLabel HaltLabel;
 	private JButton[] bitArray = new JButton[16];
 	private MemoryAddressRegister mar = new MemoryAddressRegister(0);
+	private MemoryBufferRegister mbr = new MemoryBufferRegister(0);
 	private InstructionRegister ir = new InstructionRegister(0);
+	private PCRegister pc = new PCRegister(0);
 	private Memory memory = new Memory();
+	private Operations operations = new Operations(memory);
+	private GPRegister gpr0 = new GPRegister(0);
+	private GPRegister gpr1 = new GPRegister(1);
+	private GPRegister gpr2 = new GPRegister(2);
+	private GPRegister gpr3 = new GPRegister(3);
+	private ArrayList<GPRegister> gprList = new ArrayList<GPRegister>();
+	private IndexRegister ixr1 = new IndexRegister(1);
+	private IndexRegister ixr2 = new IndexRegister(2);
+	private IndexRegister ixr3 = new IndexRegister(3);
+	private ArrayList<IndexRegister> ixrList = new ArrayList<IndexRegister>();
+	private ConditionCode cc0 = new ConditionCode(0);
+	private ConditionCode cc1 = new ConditionCode(1);
+	private ConditionCode cc2 = new ConditionCode(2);
+	private ConditionCode cc3 = new ConditionCode(3);
+	private ArrayList<ConditionCode> ccList = new ArrayList<ConditionCode>();
 	StringBuilder fileContent = new StringBuilder();
-	private ConvertIntegerToBinary cib = new ConvertIntegerToBinary();
-	private ConvertBinarytoInt cbi = new ConvertBinarytoInt();
 	private ConvertHexToBinary H2B = new ConvertHexToBinary();
-
+	private JLabel Display;
+	private JTextField DispField;
+	private JButton ConsoleButton;
+	private JRadioButton CC0;
+	private JLabel ConditionCode0;
+	private JLabel ConditionCode1;
+	private JRadioButton CC1;
+	private JLabel ConditionCode2;
+	private JRadioButton CC2;
+	private JLabel ConditionCode3;
+	private JRadioButton CC3;
+	private ArrayList<JRadioButton> ccbuttonList = new ArrayList<JRadioButton>();
 	/**
 	 * Launch the application.
 	 */
@@ -143,7 +176,7 @@ public class StimulatorWindow {
 		CSCIProjectTeam7.getContentPane().setFont(new Font("Lucida Calligraphy", Font.PLAIN, 12));
 		CSCIProjectTeam7.setBackground(new Color(105, 105, 105));
 		CSCIProjectTeam7.setFont(new Font("Dialog", Font.BOLD, 12));
-		CSCIProjectTeam7.setTitle("CSCI 6461 Project Team 7 Stimulator");
+		CSCIProjectTeam7.setTitle("CSCI 6461 Project Team 7 Stimulator");		
 		CSCIProjectTeam7.getContentPane().addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -655,9 +688,7 @@ public class StimulatorWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//On click the MAR and MBR value are fetched and the value is written into the specified address
-				String addr = MAR.getText();
-				String value = MBR.getText();
-				memory.setValue(addr, value);
+				operations.store();
 				resetBitValue();
 			}
 			});
@@ -669,11 +700,8 @@ public class StimulatorWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//On click the MAR and MBR value are fetched and the value is written into the specified address and the MAR is auto incremented by 1
-				String addr = MAR.getText();
-				String value = MBR.getText();
-				int nextaddr = cbi.ToInteger(addr) + 1;
-				memory.setValue(addr, value);
-				MAR.setText(cib.ToBinary12(nextaddr));
+				operations.storePlus();
+				MAR.setText(operations.getMAR().getBitValue());
 				resetBitValue();
 			}
 			});
@@ -685,9 +713,8 @@ public class StimulatorWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//On click the MAR value is fetched and the value present in the corresponding memory address is displayed
-				String addr = MAR.getText();
-				int i = memory.getValue(addr);
-				MBR.setText(cib.ToBinary(i));
+				operations.loadFromMemory();
+				MBR.setText(operations.getMBR().getBitValue());
 				resetBitValue();
 			}
 			});
@@ -699,19 +726,11 @@ public class StimulatorWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//On click the PC value is fetched and the subsequent instructions are executed until a HALT instruction is encountered
-				String PCvalue = PC.getText();
-				int i = memory.getValue(PCvalue);
-				IR.setText(cib.ToBinary(i));
-				ir.setValue(i);
-				//When the instruction is not a Halt the operation is executed
-				while(cbi.ToInteger(ir.IROperation())>0) {
+				do {
 					HaltLabel.setForeground(Color.BLACK);
-					operation(ir);
-					PCvalue = addPCValue(PCvalue);
-					i = memory.getValue(PCvalue);
-					IR.setText(cib.ToBinary(i));
-					ir.setValue(i);					
-				}
+					operations.singleStep();
+					setAllValues();					
+				}while(operations.getIr().getValue() != 0);
 				//Once HALT is encountered the IR displays HALT code value and Halt Glows Green
 				HaltLabel.setForeground(Color.GREEN);
 				resetBitValue();
@@ -726,16 +745,12 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				//On Click gets the PC value and executed the operation retrieved form that location
 				//PC value is auto incremented after execution of one instruction
-				String PCvalue = PC.getText();
 				HaltLabel.setForeground(Color.BLACK);
-				int i = memory.getValue(PCvalue);
-				IR.setText(cib.ToBinary(i));
-				ir.setValue(i);
-				if(ir.getValue() == 0) {
+				operations.singleStep();
+				if(operations.getIr().getValue() == 0) {
 					HaltLabel.setForeground(Color.GREEN);
 				}
-				operation(ir);
-				PC.setText(addPCValue(PCvalue));
+				setAllValues();
 				resetBitValue();
 			}
 			});
@@ -775,16 +790,28 @@ public class StimulatorWindow {
 		HaltLabel = new JLabel("HALT");
 		HaltLabel.setForeground(Color.BLACK);
 		HaltLabel.setFont(new Font("Tahoma", Font.BOLD, 22));
+		
+		ConsoleButton = new JButton("Console");
+		ConsoleButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ConsoleLog console = new ConsoleLog();
+				console.setVisible(false);
+			}
+		});
+		ConsoleButton.setFont(new Font("Calibri", Font.BOLD, 26));
 		GroupLayout gl_ButtonPanel = new GroupLayout(ButtonPanel);
 		gl_ButtonPanel.setHorizontalGroup(
 			gl_ButtonPanel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_ButtonPanel.createSequentialGroup()
-					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
+					.addGap(28)
+					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_ButtonPanel.createSequentialGroup()
-							.addGap(28)
 							.addComponent(StoreButton, GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(StorePlus, GroupLayout.DEFAULT_SIZE, 86, Short.MAX_VALUE)
+							.addComponent(StorePlus, GroupLayout.DEFAULT_SIZE, 86, Short.MAX_VALUE))
+						.addComponent(ConsoleButton, GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE))
+					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_ButtonPanel.createSequentialGroup()
 							.addPreferredGap(ComponentPlacement.UNRELATED)
 							.addComponent(LoadButton, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.UNRELATED)
@@ -793,7 +820,7 @@ public class StimulatorWindow {
 							.addComponent(SingleStep, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED))
 						.addGroup(Alignment.TRAILING, gl_ButtonPanel.createSequentialGroup()
-							.addContainerGap()
+							.addGap(228)
 							.addComponent(RunLabel)
 							.addGap(26)))
 					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
@@ -817,10 +844,15 @@ public class StimulatorWindow {
 						.addComponent(SingleStep, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
 						.addComponent(InitButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(RunLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(HaltLabel, GroupLayout.PREFERRED_SIZE, 17, GroupLayout.PREFERRED_SIZE))
-					.addGap(14))
+					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_ButtonPanel.createSequentialGroup()
+							.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.BASELINE)
+								.addComponent(RunLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(HaltLabel, GroupLayout.PREFERRED_SIZE, 17, GroupLayout.PREFERRED_SIZE))
+							.addGap(14))
+						.addGroup(gl_ButtonPanel.createSequentialGroup()
+							.addComponent(ConsoleButton)
+							.addContainerGap())))
 		);
 		ButtonPanel.setLayout(gl_ButtonPanel);
 		
@@ -895,6 +927,8 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				PC.setText(GetBitValue12());
+				pc.setValue(GetBitValue12());
+				operations.setPc(pc);
 				resetBitValue();
 			}
 		});
@@ -908,6 +942,8 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				MAR.setText(GetBitValue12());
+				mar.setValue(GetBitValue12());
+				operations.setMar(mar);
 				resetBitValue();
 			}
 		});
@@ -921,23 +957,77 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				MBR.setText(GetBitValue16());
+				mbr.setValue(GetBitValue16());
+				operations.setMbr(mbr);
 				resetBitValue();
 			}
 		});
+		
+		JLabel ConditionCode = new JLabel("CC");
+		ConditionCode.setVerticalAlignment(SwingConstants.BOTTOM);
+		ConditionCode.setHorizontalAlignment(SwingConstants.CENTER);
+		ConditionCode.setFont(new Font("Calibri", Font.BOLD, 24));
+		
+		CC0 = new JRadioButton("");
+		CC0.setHorizontalTextPosition(SwingConstants.CENTER);
+		CC0.setHorizontalAlignment(SwingConstants.CENTER);
+		CC0.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		ConditionCode0 = new JLabel("0");
+		ConditionCode0.setVerticalAlignment(SwingConstants.TOP);
+		ConditionCode0.setHorizontalTextPosition(SwingConstants.CENTER);
+		ConditionCode0.setHorizontalAlignment(SwingConstants.CENTER);
+		ConditionCode0.setFont(new Font("Calibri", Font.BOLD, 24));
+		
+		ConditionCode1 = new JLabel("1");
+		ConditionCode1.setVerticalAlignment(SwingConstants.TOP);
+		ConditionCode1.setHorizontalTextPosition(SwingConstants.CENTER);
+		ConditionCode1.setHorizontalAlignment(SwingConstants.CENTER);
+		ConditionCode1.setFont(new Font("Calibri", Font.BOLD, 24));
+		
+		CC1 = new JRadioButton("");
+		CC1.setHorizontalTextPosition(SwingConstants.CENTER);
+		CC1.setHorizontalAlignment(SwingConstants.CENTER);
+		CC1.setAlignmentX(0.5f);
+		
+		ConditionCode2 = new JLabel("2");
+		ConditionCode2.setVerticalAlignment(SwingConstants.TOP);
+		ConditionCode2.setHorizontalTextPosition(SwingConstants.CENTER);
+		ConditionCode2.setHorizontalAlignment(SwingConstants.CENTER);
+		ConditionCode2.setFont(new Font("Calibri", Font.BOLD, 24));
+		
+		CC2 = new JRadioButton("");
+		CC2.setHorizontalTextPosition(SwingConstants.CENTER);
+		CC2.setHorizontalAlignment(SwingConstants.CENTER);
+		CC2.setAlignmentX(0.5f);
+		
+		ConditionCode3 = new JLabel("3");
+		ConditionCode3.setVerticalAlignment(SwingConstants.TOP);
+		ConditionCode3.setHorizontalTextPosition(SwingConstants.CENTER);
+		ConditionCode3.setHorizontalAlignment(SwingConstants.CENTER);
+		ConditionCode3.setFont(new Font("Calibri", Font.BOLD, 24));
+		
+		CC3 = new JRadioButton("");
+		CC3.setHorizontalTextPosition(SwingConstants.CENTER);
+		CC3.setHorizontalAlignment(SwingConstants.CENTER);
+		CC3.setAlignmentX(0.5f);
+		ccbuttonList.add(CC0); ccbuttonList.add(CC1); ccbuttonList.add(CC2); ccbuttonList.add(CC3); 
 		GroupLayout gl_AddressRegisterPanel = new GroupLayout(AddressRegisterPanel);
 		gl_AddressRegisterPanel.setHorizontalGroup(
 			gl_AddressRegisterPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_AddressRegisterPanel.createSequentialGroup()
-					.addGap(31)
+					.addGap(32)
 					.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.TRAILING)
 						.addComponent(MemoryAddressRegister, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(MemoryBufferRegister, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(InstructionRegister, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(MemoryFaultRegister, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
-						.addComponent(ProgramCounter, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.RELATED)
+						.addComponent(ProgramCounter, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
+						.addComponent(ConditionCode, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE))
+					.addGap(18)
 					.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.LEADING)
 						.addComponent(MFR, GroupLayout.PREFERRED_SIZE, 381, GroupLayout.PREFERRED_SIZE)
+						.addComponent(IR, GroupLayout.PREFERRED_SIZE, 381, GroupLayout.PREFERRED_SIZE)
 						.addGroup(gl_AddressRegisterPanel.createSequentialGroup()
 							.addComponent(MAR, GroupLayout.PREFERRED_SIZE, 381, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
@@ -950,19 +1040,51 @@ public class StimulatorWindow {
 							.addComponent(MBR, GroupLayout.PREFERRED_SIZE, 381, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(LoadButtonMBR, GroupLayout.PREFERRED_SIZE, 97, GroupLayout.PREFERRED_SIZE))
-						.addComponent(IR, GroupLayout.PREFERRED_SIZE, 381, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(62, Short.MAX_VALUE))
+						.addGroup(gl_AddressRegisterPanel.createSequentialGroup()
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(ConditionCode0, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(CC0, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(ConditionCode1, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+							.addComponent(CC1, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(ConditionCode2, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+							.addComponent(CC2, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(ConditionCode3, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+							.addComponent(CC3, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap(61, Short.MAX_VALUE))
 		);
 		gl_AddressRegisterPanel.setVerticalGroup(
 			gl_AddressRegisterPanel.createParallelGroup(Alignment.TRAILING)
-				.addGroup(gl_AddressRegisterPanel.createSequentialGroup()
-					.addContainerGap(78, Short.MAX_VALUE)
-					.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.LEADING, false)
-						.addGroup(Alignment.TRAILING, gl_AddressRegisterPanel.createSequentialGroup()
+				.addGroup(Alignment.LEADING, gl_AddressRegisterPanel.createSequentialGroup()
+					.addGap(23)
+					.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.TRAILING)
+						.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.BASELINE)
+							.addComponent(ConditionCode, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
+							.addComponent(ConditionCode0, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
+						.addComponent(CC0, GroupLayout.PREFERRED_SIZE, 31, GroupLayout.PREFERRED_SIZE)
+						.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.LEADING)
+							.addGroup(gl_AddressRegisterPanel.createSequentialGroup()
+								.addGap(1)
+								.addComponent(ConditionCode1, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
+							.addComponent(CC1, GroupLayout.PREFERRED_SIZE, 31, GroupLayout.PREFERRED_SIZE)
+							.addGroup(gl_AddressRegisterPanel.createSequentialGroup()
+								.addGap(1)
+								.addComponent(ConditionCode2, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
+							.addComponent(CC2, GroupLayout.PREFERRED_SIZE, 31, GroupLayout.PREFERRED_SIZE)
+							.addGroup(gl_AddressRegisterPanel.createSequentialGroup()
+								.addGap(1)
+								.addComponent(ConditionCode3, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE))
+							.addComponent(CC3, GroupLayout.PREFERRED_SIZE, 31, GroupLayout.PREFERRED_SIZE)))
+					.addGap(6)
+					.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.TRAILING, false)
+						.addGroup(gl_AddressRegisterPanel.createSequentialGroup()
 							.addComponent(LoadButtonPC, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.UNRELATED)
 							.addComponent(LoadButtonMAR, GroupLayout.PREFERRED_SIZE, 41, GroupLayout.PREFERRED_SIZE))
-						.addGroup(Alignment.TRAILING, gl_AddressRegisterPanel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.LEADING)
 							.addComponent(MemoryAddressRegister, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
 							.addGroup(gl_AddressRegisterPanel.createSequentialGroup()
 								.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.BASELINE)
@@ -983,7 +1105,7 @@ public class StimulatorWindow {
 					.addGroup(gl_AddressRegisterPanel.createParallelGroup(Alignment.LEADING)
 						.addComponent(MemoryFaultRegister, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
 						.addComponent(MFR, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE))
-					.addGap(21))
+					.addContainerGap(28, Short.MAX_VALUE))
 		);
 		AddressRegisterPanel.setLayout(gl_AddressRegisterPanel);
 		//Registers R0-R3
@@ -1014,6 +1136,8 @@ public class StimulatorWindow {
 		GPR3.setEditable(false);
 		GPR3.setColumns(10);
 		GPR3.setBackground(SystemColor.menu);
+		
+		GPRTextList.add(GPR0); GPRTextList.add(GPR1); GPRTextList.add(GPR2); GPRTextList.add(GPR3);
 		//Index Registers IX1-IX3
 		IXR1 = new JTextField();
 		IXR1.setFont(new Font("Tahoma", Font.PLAIN, 26));
@@ -1035,6 +1159,8 @@ public class StimulatorWindow {
 		IXR3.setEditable(false);
 		IXR3.setColumns(10);
 		IXR3.setBackground(SystemColor.menu);
+		
+		IXRTextList.add(IXR1); IXRTextList.add(IXR2); IXRTextList.add(IXR3);
 		
 		GPR0Label = new JLabel("GPR0");
 		GPR0Label.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1080,6 +1206,8 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				GPR0.setText(GetBitValue16());
+				gpr0.setValue(GetBitValue16());
+				operations.setGpr0(gpr0);
 				resetBitValue();
 			}
 		});
@@ -1093,6 +1221,8 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				GPR1.setText(GetBitValue16());
+				gpr1.setValue(GetBitValue16());
+				operations.setGpr1(gpr1);
 				resetBitValue();
 			}
 		});
@@ -1106,6 +1236,8 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				GPR2.setText(GetBitValue16());
+				gpr2.setValue(GetBitValue16());
+				operations.setGpr2(gpr2);
 				resetBitValue();
 			}
 		});
@@ -1119,6 +1251,8 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				GPR3.setText(GetBitValue16());
+				gpr3.setValue(GetBitValue16());
+				operations.setGpr3(gpr3);
 				resetBitValue();
 			}
 		});
@@ -1132,6 +1266,8 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				IXR1.setText(GetBitValue16());
+				ixr1.setValue(GetBitValue16());
+				operations.setIxr1(ixr1);
 				resetBitValue();
 			}
 		});
@@ -1145,6 +1281,8 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				IXR2.setText(GetBitValue16());
+				ixr2.setValue(GetBitValue16());
+				operations.setIxr2(ixr2);
 				resetBitValue();
 			}
 		});
@@ -1158,22 +1296,36 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				
 				IXR3.setText(GetBitValue16());
+				ixr3.setValue(GetBitValue16());
+				operations.setIxr3(ixr3);
 				resetBitValue();
 			}
 		});
+		
+		Display = new JLabel("Disp");
+		Display.setVerticalAlignment(SwingConstants.BOTTOM);
+		Display.setHorizontalAlignment(SwingConstants.CENTER);
+		Display.setFont(new Font("Calibri", Font.BOLD, 24));
+		
+		DispField = new JTextField();
+		DispField.setFont(new Font("Tahoma", Font.PLAIN, 26));
+		DispField.setEditable(false);
+		DispField.setColumns(10);
+		DispField.setBackground(SystemColor.menu);
 		GroupLayout gl_GPRIXRPanel = new GroupLayout(GPRIXRPanel);
 		gl_GPRIXRPanel.setHorizontalGroup(
-			gl_GPRIXRPanel.createParallelGroup(Alignment.TRAILING)
+			gl_GPRIXRPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_GPRIXRPanel.createSequentialGroup()
 					.addGap(33)
 					.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.TRAILING)
-						.addComponent(GPR0Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
+						.addComponent(Display, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(GPR1Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(GPR2Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(GPR3Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(IXR1Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
 						.addComponent(IXR2Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
-						.addComponent(IXR3Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE))
+						.addComponent(IXR3Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
+						.addComponent(GPR0Label, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_GPRIXRPanel.createSequentialGroup()
@@ -1203,19 +1355,24 @@ public class StimulatorWindow {
 						.addGroup(gl_GPRIXRPanel.createSequentialGroup()
 							.addComponent(GPR1, GroupLayout.PREFERRED_SIZE, 381, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(LoadButtonGPR1, GroupLayout.PREFERRED_SIZE, 97, GroupLayout.PREFERRED_SIZE)))
+							.addComponent(LoadButtonGPR1, GroupLayout.PREFERRED_SIZE, 97, GroupLayout.PREFERRED_SIZE))
+						.addComponent(DispField, GroupLayout.PREFERRED_SIZE, 381, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap(16, Short.MAX_VALUE))
 		);
 		gl_GPRIXRPanel.setVerticalGroup(
 			gl_GPRIXRPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_GPRIXRPanel.createSequentialGroup()
-					.addGap(80)
+					.addGap(32)
 					.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(Display, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
+						.addComponent(DispField, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.TRAILING)
+						.addComponent(LoadButtonGPR0)
 						.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.BASELINE)
 							.addComponent(GPR0, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
-							.addComponent(GPR0Label, GroupLayout.DEFAULT_SIZE, 42, Short.MAX_VALUE))
-						.addComponent(LoadButtonGPR0))
-					.addGap(18)
+							.addComponent(GPR0Label, GroupLayout.DEFAULT_SIZE, 42, Short.MAX_VALUE)))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.LEADING)
 						.addComponent(GPR1Label, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE)
 						.addGroup(gl_GPRIXRPanel.createParallelGroup(Alignment.TRAILING, false)
@@ -1325,90 +1482,36 @@ public class StimulatorWindow {
 			bitArray[i].setBackground(Color.WHITE);
 			}
 	}
-	/*
-	 * This method is used to check the status of each switch and then fetch the value of the GPR register to be accessed
-	 */
-	public void setGprValue(int n, int value) {
-		if(n == 0) {
-			GPR0.setText(cib.ToBinary(value));
+	
+	public void setAllValues() {
+		gprList = operations.getGPRList();
+		ixrList = operations.getIXRList();
+		ccList = operations.getCCList();
+		mar = operations.getMAR();
+		mbr = operations.getMBR();
+		ir = operations.getIr();
+		pc = operations.getPc();
+		for(int i=0; i<gprList.size(); i++) {
+			GPRTextList.get(i).setText(gprList.get(i).getBitValue());
 		}
-		else if(n == 1) {
-			GPR1.setText(cib.ToBinary(value));
+		for(int i=0; i<ixrList.size(); i++) {
+			IXRTextList.get(i).setText(ixrList.get(i).getBitValue());
 		}
-		else if(n == 2) {
-			GPR2.setText(cib.ToBinary(value));
-		}
-		else if(n == 3) {
-			GPR3.setText(cib.ToBinary(value));
-		}
-	}
-	/*
-	 * This method is used to check the status of each switch and then fetch the value of the IXR register to be accessed
-	 */
-	public int getIXRvalue(int n) {
-		int value = 0;
-		if(n == 1) {
-			value = cbi.ToInteger(IXR1.getText());
-		}
-		else if(n == 2) {
-			value = cbi.ToInteger(IXR2.getText());
-		}
-		else if(n == 3) {
-			value = cbi.ToInteger(IXR3.getText());
-		}
-		return value;
-	}
-	/*
-	 * This method is used to increment PC values by 1
-	 */
-	public String addPCValue(String PCvalue) {
-		int nextValue = cbi.ToInteger(PCvalue) + 1;
-		return cib.ToBinary12(nextValue);
-	}
-	/*
-	 * This method is used to decode the operation instruction and fetch the corresponding values to perform the required operation
-	 */
-	public void operation(InstructionRegister ir) {
-		int i = 0;
-		String addr = cib.ToBinary12(cbi.ToInteger(ir.IRAddress()));
-		//Calling function from the IR Class to fetch the operation bits 
-		int operation = cbi.ToInteger(ir.IROperation()); 
-		//Calling function from the IR Class to fetch the GPR bits 
-		int gprNumber = cbi.ToInteger(ir.IRGprnumber());
-		//Calling function from the IR Class to fetch the Index Register bits 
-		int ixrnumber = cbi.ToInteger(ir.IRIndexNumber());
-		//Calling function from the IR Class to fetch the Indirect/Direct bit
-		int indirect = cbi.ToInteger(ir.IRIndirect());
-		if(operation == 1) {
-			MAR.setText(addr);
-			mar.setValue(addr);
-			//If indirect is 1 and IXR is 0 fetch the effective address from the memory
-			if(indirect==1 && ixrnumber== 0) {
-				int effectiveAddress = memory.getValue(addr);
-				i = memory.getValue(cib.ToBinary12(effectiveAddress));
+		MAR.setText(mar.getBitValue());
+		MBR.setText(mbr.getBitValue());
+		IR.setText(ir.getBitValue());
+		PC.setText(pc.getBitValue());
+		for(int i=0; i<ccList.size(); i++) {
+			if(ccList.get(i).getValue() == 1) {
+				ccbuttonList.get(i).setSelected(true);
 			}
-			//If indirect is 0 and IXR registers have value fetch the effective address by adding the IXR value to the value present in MAR
-			else if(indirect==0 && ixrnumber != 0) {
-				int ixrvalue = getIXRvalue(ixrnumber);
-				int effectiveAddress = ixrvalue + cbi.ToInteger(addr);
-				i = memory.getValue(cib.ToBinary12(effectiveAddress));
-			}
-			//
-			//If indirect is 1 and IXR registers have value fetch the effective address by first adding the IXR value to the value present in MAR
-		 	//and then the corresponding value present in memory
-			else if(indirect==1 && ixrnumber != 0) {
-				int ixrvalue = getIXRvalue(ixrnumber);
-				int effectiveAddress = memory.getValue(cib.ToBinary12(ixrvalue + cbi.ToInteger(addr)));
-				i = memory.getValue(cib.ToBinary12(effectiveAddress));
-			}
-			//if both indirect and IXR are 0 the value present in MAR is the effective address
 			else {
-				i = memory.getValue(addr);	
+				ccbuttonList.get(i).setSelected(false);
 			}
-			setGprValue(gprNumber, i);
 			
 		}
 		
 	}
+	
 }
 	

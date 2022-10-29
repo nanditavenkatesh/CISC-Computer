@@ -18,7 +18,7 @@ public class Memory {
 	
 	//Constructor to initialize the object and create the Hash map to be used as memory
 	public Memory() {
-		memory = new HashMap<>();;
+		memory = new HashMap<>();
 	}
 	
 	//Expand the memory to 4096 when called, sets the maxSize variable to 4096 
@@ -37,9 +37,15 @@ public class Memory {
 		int addressInInt = Integer.valueOf(address, 2);
 		//verify the address is valid
 		if (addressInInt < maxSize && value.length() <= 16) {
-			memory.put(addressInInt, Integer.valueOf(value, 2));
-			//log the address and the value stored
-			logger.info("Value " + value + " placed at memory location " + address);
+			if (addressInInt > 6) {
+				memory.put(addressInInt, Integer.valueOf(value, 2));
+				//log the address and the value stored
+				logger.info("Value " + value + " placed at memory location " + address);
+			}
+			else {
+				logger.severe("Reserved Memory Location cannot be used");
+			}
+			
 		}
 		//if address is invalid the error message is printed
 		else
@@ -50,6 +56,7 @@ public class Memory {
 	}
 	//Get the Memory value if the memory address is valid else return 0
 	public int getValue(String address) {
+		
 		int addressInInt = Integer.valueOf(address, 2);
 		//verify the address is valid
 		if (addressInInt >= maxSize || memory.get(addressInInt)== null) {

@@ -10,13 +10,15 @@ import java.util.logging.Logger;
 public class Register {
     private int value, length;
     private String name;
+    private int registerNumber;
     final Logger logging = Logger.getLogger("CPU.Register");
     
     //Accepts the value, length and the Name of the register and creates the same with the respective size and name
     public Register(int value, int length, String name) {
         this.length = length;
         this.name = name;
-        setValue(value);
+        this.registerNumber = value;
+        setValue(0);
     }
     //Change to BinaryString
     public String ToBinaryString() {

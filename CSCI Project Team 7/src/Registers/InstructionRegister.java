@@ -33,4 +33,16 @@ public class InstructionRegister extends Register{
 		String value = getBitValue();
 		return value.substring(8, 10);
 	}
+	public String IRal() {
+		String value = getBitValue();
+		return value.substring(8, 9); 
+	}
+	public String IRlr() {
+		String value = getBitValue();
+		return value.substring(9, 10); 
+	}
+	public String IRCount() {
+		String value = getBitValue();
+		return value.substring(12); 
+	}
 }
