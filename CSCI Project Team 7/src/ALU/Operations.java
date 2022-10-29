@@ -420,8 +420,6 @@ public class Operations {
 		else {
 			pc.setValue(pc.getValue()+1);
 		}
-		
-		pc.setValue(gprList.get(3).getValue());
 		logger.info("SOB End");
 	}
 
@@ -434,8 +432,6 @@ public class Operations {
 		else {
 			pc.setValue(pc.getValue()+1);
 		}
-		
-		pc.setValue(gprList.get(3).getValue());
 		logger.info("JGE End");
 	}
 
