@@ -96,7 +96,7 @@ public class StimulatorWindow {
 	private JButton LoadButton;
 	private JButton RunButton;
 	private JButton SingleStep;
-	private JButton InitButton;
+	private JButton IPLButton;
 	private JButton LoadButtonGPR0;
 	private JButton LoadButtonGPR1;
 	private JButton LoadButtonGPR2;
@@ -756,8 +756,8 @@ public class StimulatorWindow {
 			});
 		
 		//The init button or IPL is used to reset the memory and then load the instructions specified in the file onto the memory
-		InitButton = new JButton("INIT");
-		InitButton.addActionListener(new ActionListener() {
+		IPLButton = new JButton("IPL");
+		IPLButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				///On click a pop-up window is displayed to choose a .txt file
 				FileReader newPopUpScreen = new FileReader();
@@ -781,7 +781,7 @@ public class StimulatorWindow {
 				}
 			}
 		});
-		InitButton.setFont(new Font("Calibri", Font.BOLD, 26));
+		IPLButton.setFont(new Font("Calibri", Font.BOLD, 26));
 		
 		RunLabel = new JLabel("RUN");
 		RunLabel.setFont(new Font("Tahoma", Font.BOLD, 22));
@@ -824,7 +824,7 @@ public class StimulatorWindow {
 							.addGap(26)))
 					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_ButtonPanel.createSequentialGroup()
-							.addComponent(InitButton, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+							.addComponent(IPLButton, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
 							.addGap(25))
 						.addGroup(gl_ButtonPanel.createSequentialGroup()
 							.addGap(10)
@@ -841,7 +841,7 @@ public class StimulatorWindow {
 						.addComponent(LoadButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
 						.addComponent(RunButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
 						.addComponent(SingleStep, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
-						.addComponent(InitButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE))
+						.addComponent(IPLButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_ButtonPanel.createSequentialGroup()
