@@ -1207,7 +1207,7 @@ public class StimulatorWindow {
 				
 				GPR0.setText(GetBitValue16());
 				gpr0.setValue(GetBitValue16());
-				operations.setGpr0(gpr0);
+				operations.setGpr0(GetBitValue16());
 				resetBitValue();
 			}
 		});
@@ -1222,7 +1222,7 @@ public class StimulatorWindow {
 				
 				GPR1.setText(GetBitValue16());
 				gpr1.setValue(GetBitValue16());
-				operations.setGpr1(gpr1);
+				operations.setGpr1(GetBitValue16());
 				resetBitValue();
 			}
 		});
@@ -1237,7 +1237,7 @@ public class StimulatorWindow {
 				
 				GPR2.setText(GetBitValue16());
 				gpr2.setValue(GetBitValue16());
-				operations.setGpr2(gpr2);
+				operations.setGpr2(GetBitValue16());
 				resetBitValue();
 			}
 		});
@@ -1252,7 +1252,7 @@ public class StimulatorWindow {
 				
 				GPR3.setText(GetBitValue16());
 				gpr3.setValue(GetBitValue16());
-				operations.setGpr3(gpr3);
+				operations.setGpr3(GetBitValue16());
 				resetBitValue();
 			}
 		});
@@ -1429,6 +1429,10 @@ public class StimulatorWindow {
 		IXR1.setText("0000000000000000");
 		IXR2.setText("0000000000000000");
 		IXR3.setText("0000000000000000");
+		for(int i = 0; i<ccbuttonList.size();i++) {
+			ccbuttonList.get(i).setSelected(false);
+			ccList.get(i).setValue(0);
+		}
 	}
 /*
  * This method is used to change the Color of the switches when they are clicked to show the change in status

@@ -69,5 +69,9 @@ public class ConsoleLog extends JFrame{
 		
 		consoleFrame.setVisible(true);
 	}
+	public void setText(String value) {
+		JTextArea ConsoleLogTextArea = new JTextArea();
+		ConsoleLogTextArea.append(value);
+	}
 
 }

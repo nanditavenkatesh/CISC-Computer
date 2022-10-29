@@ -37,14 +37,14 @@ public class Memory {
 		int addressInInt = Integer.valueOf(address, 2);
 		//verify the address is valid
 		if (addressInInt < maxSize && value.length() <= 16) {
-			if (addressInInt > 6) {
+//			if (addressInInt > 6) {
 				memory.put(addressInInt, Integer.valueOf(value, 2));
 				//log the address and the value stored
 				logger.info("Value " + value + " placed at memory location " + address);
-			}
-			else {
-				logger.severe("Reserved Memory Location cannot be used");
-			}
+//			}
+//			else {
+//				logger.severe("Reserved Memory Location cannot be used");
+//			}
 			
 		}
 		//if address is invalid the error message is printed

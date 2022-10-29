@@ -11,10 +11,13 @@ import Registers.InstructionRegister;
 import Registers.MemoryAddressRegister;
 import Registers.MemoryBufferRegister;
 import Registers.PCRegister;
+import Simulator.ConsoleLog;
 import Utils.ConvertBinarytoInt;
 import Utils.ConvertHexToBinary;
 import Utils.ConvertIntegerToBinary;
 import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 public class Operations {
 	private MemoryAddressRegister mar = new MemoryAddressRegister(0);
@@ -40,16 +43,26 @@ public class Operations {
 	private ConvertIntegerToBinary cib = new ConvertIntegerToBinary();
 	private ConvertBinarytoInt cbi = new ConvertBinarytoInt();
 	private ConvertHexToBinary H2B = new ConvertHexToBinary();
+	private Devices printer = new Devices();
+	private Devices keyboard = new Devices();
+	private Devices cardReader= new Devices();
+	private ArrayList<Devices> deviceList = new ArrayList<Devices>();
 	private final static Logger logger = Logger.getLogger("OperationsLogger");
+	private ConsoleLog console = new ConsoleLog();
 	
 	public Operations(Memory memory) {
 		this.memory = memory;
 		gprList.add(gpr0); gprList.add(gpr1); gprList.add(gpr2); gprList.add(gpr3);
 		ixrList.add(ixr1); ixrList.add(ixr2); ixrList.add(ixr3); 
 		ccList.add(cc0); ccList.add(cc1); ccList.add(cc2); ccList.add(cc3);
+		deviceList.add(keyboard); deviceList.add(printer); deviceList.add(cardReader); 
 	}
 	public ArrayList<GPRegister> getGPRList(){
 		return gprList;
+	}
+	
+	public void setGPRList(ArrayList<GPRegister> gprList){
+		this.gprList = gprList;
 	}
 	
 	public ArrayList<IndexRegister> getIXRList(){
@@ -126,8 +139,8 @@ public class Operations {
 	/**
 	 * @param gpr0 the gpr0 to set
 	 */
-	public void setGpr0(GPRegister gpr0) {
-		this.gpr0 = gpr0;
+	public void setGpr0(String gpr0) {
+		this.gpr0.setValue(gpr0);
 	}
 
 	/**
@@ -140,8 +153,8 @@ public class Operations {
 	/**
 	 * @param gpr1 the gpr1 to set
 	 */
-	public void setGpr1(GPRegister gpr1) {
-		this.gpr1 = gpr1;
+	public void setGpr1(String gpr1) {
+		this.gpr1.setValue(gpr1);
 	}
 
 	/**
@@ -154,8 +167,8 @@ public class Operations {
 	/**
 	 * @param gpr2 the gpr2 to set
 	 */
-	public void setGpr2(GPRegister gpr2) {
-		this.gpr2 = gpr2;
+	public void setGpr2(String gpr2) {
+		this.gpr2.setValue(gpr2);
 	}
 
 	/**
@@ -168,8 +181,8 @@ public class Operations {
 	/**
 	 * @param gpr3 the gpr3 to set
 	 */
-	public void setGpr3(GPRegister gpr3) {
-		this.gpr3 = gpr3;
+	public void setGpr3(String gpr3) {
+		this.gpr3.setValue(gpr3);
 	}
 
 	/**
@@ -253,7 +266,6 @@ public class Operations {
 		int i = memory.getValue(PCvalue);
 		ir.setValue(i);
 		operation();
-		pc.setValue(pc.getValue()+1);
 		logger.info("Single Step incremented PC by 1");
 	}
 	
@@ -297,7 +309,8 @@ public class Operations {
 		int gprNumber = cbi.ToInteger(ir.IRGprnumber());
 		mar.setValue(getEA());
 		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
-		gprList.get(gprNumber).setValue(mbr.getValue());;
+		gprList.get(gprNumber).setValue(mbr.getValue());
+		pc.setValue(pc.getValue()+1);
 		logger.info("LDR End");
 	}
 
@@ -307,6 +320,7 @@ public class Operations {
 		mar.setValue(getEA());
 		mbr.setValue(gprList.get(gprNumber).getValue());
 		store();
+		pc.setValue(pc.getValue()+1);
 		logger.info("STR Ends");
 	}
 	
@@ -314,6 +328,7 @@ public class Operations {
 		logger.info("LDA Start");
 		int gprNumber = cbi.ToInteger(ir.IRGprnumber());
 		gprList.get(gprNumber).setValue(getEA());
+		pc.setValue(pc.getValue()+1);
 		logger.info("LDA Ends");
 	}
 	
@@ -324,6 +339,7 @@ public class Operations {
 		mar.setValue(getEA());
 		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
 		ixrList.get(ixrNumber).setValue(mbr.getValue());
+		pc.setValue(pc.getValue()+1);
 		logger.info("LDX End");
 	}
 			
@@ -333,6 +349,7 @@ public class Operations {
 		mar.setValue(getEA());
 		mbr.setValue(ixrList.get(ixrNumber).getValue());
 		store();
+		pc.setValue(pc.getValue()+1);
 		logger.info("STX Ends");
 	}
 		
@@ -343,7 +360,14 @@ public class Operations {
 		
 	}
 	private void JCC() {
-		// TODO Auto-generated method stub
+		int ccNumber = cbi.ToInteger(ir.IRGprnumber());
+		int ccValue = ccList.get(ccNumber).getValue();
+		if (ccValue == 1) {
+			pc.setValue(getEA());
+		}
+		else {
+			pc.setValue(pc.getValue() +  1);
+		}
 		
 	}
 	private void JNE() {
@@ -426,6 +450,7 @@ public class Operations {
 		else {
 			gprList.get(gprNumber).setValue(gprList.get(gprNumber).getValue() + mbr.getValue());
 		}
+		pc.setValue(pc.getValue()+1);
 		logger.info("AMR End");
 	}
 	
@@ -440,7 +465,7 @@ public class Operations {
 		}else {
 			gprList.get(gprNumber).setValue(gprList.get(gprNumber).getValue() - mbr.getValue());
 		}
-		
+		pc.setValue(pc.getValue()+1);
 		logger.info("SMR End");
 	}
 
@@ -457,6 +482,7 @@ public class Operations {
 					gprList.get(gprNumber).setValue(gprList.get(gprNumber).getValue() + immed);
 			}
 		}
+		pc.setValue(pc.getValue()+1);
 		logger.info("AIR End");
 	}
 	
@@ -473,6 +499,7 @@ public class Operations {
 					gprList.get(gprNumber).setValue(gprList.get(gprNumber).getValue() - immed);
 			}
 		}
+		pc.setValue(pc.getValue()+1);
 		logger.info("SIR End");
 	}
 	
@@ -498,6 +525,7 @@ public class Operations {
 		else {
 			logger.severe("Multiplication Error: Values to be places on registers 0 or 2");
 		}
+		pc.setValue(pc.getValue()+1);
 		logger.info("Multiply Ends");
 		
 	}
@@ -532,6 +560,7 @@ public class Operations {
 		else {
 			logger.severe("Division Error: Values to be places on registers 0 or 2");
 		}
+		pc.setValue(pc.getValue()+1);
 		logger.info("Divide Ends");
 		
 	}
@@ -550,6 +579,7 @@ public class Operations {
 			ccList.get(3).setValue(0);
 			logger.info("Equal Or Not CC bit Set to 0");
 		}
+		pc.setValue(pc.getValue()+1);
 		logger.info("TRR Ends");
 	}
 	private void AND() {
@@ -560,6 +590,7 @@ public class Operations {
 		int ryValue = ixrList.get(Ry).getValue();
 		int logicalAnd = rxValue & ryValue;
 		gprList.get(Rx).setValue(logicalAnd);
+		pc.setValue(pc.getValue()+1);
 		logger.info("GPR "+ cib.ToBinary(Rx)+ "Set with value "+ cib.ToBinary(logicalAnd));
 		logger.info("And Ends");
 	}
@@ -571,6 +602,7 @@ public class Operations {
 		int ryValue = ixrList.get(Ry).getValue();
 		int logicalOr = rxValue | ryValue;
 		gprList.get(Rx).setValue(logicalOr);
+		pc.setValue(pc.getValue()+1);
 		logger.info("GPR "+ cib.ToBinary(Rx)+ "Set with value "+ cib.ToBinary(logicalOr));
 		logger.info("OR Ends");	
 	}
@@ -586,6 +618,7 @@ public class Operations {
 				logicalNot += '0';
 		}
 		gprList.get(Rx).setValue(logicalNot);
+		pc.setValue(pc.getValue()+1);
 		logger.info("GPR "+ cib.ToBinary(Rx)+ "Set with value "+ logicalNot);
 		logger.info("NOT Ends");	
 		
@@ -620,6 +653,7 @@ public class Operations {
 		}
 		String gprNum = Arrays.toString(gpr);
 		gprList.get(reg).setValue(Integer.parseInt(gprNum));
+		pc.setValue(pc.getValue()+1);
 		
 	}
 	private void SRC() {
@@ -651,15 +685,50 @@ public class Operations {
 		}
 		String gprNum = Arrays.toString(gpr);
 		gprList.get(reg).setValue(Integer.parseInt(gprNum));
+		pc.setValue(pc.getValue()+1);
+		logger.info("RRC instruction end");
 		
 	}
 	private void IN() {
-		// TODO Auto-generated method stub
+		logger.info("IN instruction start.");
+		int register = cbi.ToInteger(ir.IRGprnumber());
+		int devid = cbi.ToInteger(ir.IRAddress());
+		if(devid != 1) {
+			if(devid == 0) {
+				String input = "";
+				input = JOptionPane.showInputDialog("Please give the input");
+				gprList.get(register).setValue(Integer.valueOf(input));
+			}
+			else {
+				int value = deviceList.get(devid).getValue();
+				gprList.get(register).setValue(value);
+				logger.info("IN instruction end.");
+			}	
+		}
+		else {
+			logger.info("IN instruction end with no action.");
+		}
+		pc.setValue(pc.getValue()+1);
 		
 	}
 	private void OUT() {
-		// TODO Auto-generated method stub
-		
+		logger.info("IN instruction start.");
+		int register = cbi.ToInteger(ir.IRGprnumber());
+		int devid = cbi.ToInteger(ir.IRAddress());
+		int value = gprList.get(register).getValue();
+		if(devid != 0) {
+			if(devid == 1) {
+				console.setText(String.valueOf(value));
+			}
+			else {
+				deviceList.get(devid).setValue(value);
+				logger.info("OUT instruction end.");
+			}
+		}
+		else {
+			logger.info("OUT instruction end with no action.");
+		}
+		pc.setValue(pc.getValue()+1);
 	}
 	
 	public void HLT() {
