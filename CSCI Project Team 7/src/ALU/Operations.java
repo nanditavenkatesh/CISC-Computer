@@ -303,7 +303,28 @@ public class Operations {
 		logger.info("Returning Effective address");
 		return effectiveAddress;
 	}
+	public String rightShift(String value, int count, int AL) {
+		char sign;
+		if (AL == 0) {
+			sign = value.charAt(0);
+		}
+		else {
+			sign = '0';
+		}
+        for (int i = 0; i < count; i++) {
+        	value = sign + value.substring(0, gpr0.getLength() - 1);
+        }
+
+        return value;
+	}
 	
+	public String leftShift(String value, int count) {
+		for (int i = 0; i < count; i++) {
+        	value = value.substring(1, gpr0.getLength()) + "0";
+        }
+
+        return value;
+	}
 	public void LDR() {
 		logger.info("LDR Start");
 		//Calling function from the IR Class to fetch the GPR bits 
@@ -505,7 +526,7 @@ public class Operations {
 		int Rx = cbi.ToInteger(ir.IRGprnumber());
 		int Ry = cbi.ToInteger(ir.IRIndexNumber());
 		int rxValue = gprList.get(Rx).getValue();
-		int ryValue = ixrList.get(Ry).getValue();
+		int ryValue = gprList.get(Ry).getValue();
 		if ((Rx == 0 || Rx == 2) && (Ry == 0 || Ry == 2)){
 			double result = rxValue * ryValue;
 			if (result > Integer.MAX_VALUE || result < Integer.MIN_VALUE) {
@@ -532,7 +553,7 @@ public class Operations {
 		int Rx = cbi.ToInteger(ir.IRGprnumber());
 		int Ry = cbi.ToInteger(ir.IRIndexNumber());
 		int rxValue = gprList.get(Rx).getValue();
-		int ryValue = ixrList.get(Ry).getValue();
+		int ryValue = gprList.get(Ry).getValue();
 		if ((Rx == 0 || Rx == 2) && (Ry == 0 || Ry == 2)){
 			if(ryValue == 0) {
 				ccList.get(2).setValue(1);
@@ -567,7 +588,7 @@ public class Operations {
 		int Rx = cbi.ToInteger(ir.IRGprnumber());
 		int Ry = cbi.ToInteger(ir.IRIndexNumber());
 		int rxValue = gprList.get(Rx).getValue();
-		int ryValue = ixrList.get(Ry).getValue();
+		int ryValue = gprList.get(Ry).getValue();
 		if (rxValue == ryValue) {
 			ccList.get(3).setValue(1);
 			logger.info("Equal Or Not CC bit Set to 1");
@@ -584,7 +605,7 @@ public class Operations {
 		int Rx = cbi.ToInteger(ir.IRGprnumber());
 		int Ry = cbi.ToInteger(ir.IRIndexNumber());
 		int rxValue = gprList.get(Rx).getValue();
-		int ryValue = ixrList.get(Ry).getValue();
+		int ryValue = gprList.get(Ry).getValue();
 		int logicalAnd = rxValue & ryValue;
 		gprList.get(Rx).setValue(logicalAnd);
 		pc.setValue(pc.getValue()+1);
@@ -596,7 +617,7 @@ public class Operations {
 		int Rx = cbi.ToInteger(ir.IRGprnumber());
 		int Ry = cbi.ToInteger(ir.IRIndexNumber());
 		int rxValue = gprList.get(Rx).getValue();
-		int ryValue = ixrList.get(Ry).getValue();
+		int ryValue = gprList.get(Ry).getValue();
 		int logicalOr = rxValue | ryValue;
 		gprList.get(Rx).setValue(logicalOr);
 		pc.setValue(pc.getValue()+1);
@@ -622,68 +643,45 @@ public class Operations {
 	}
 		
 	private void RRC() {
+		logger.info("RRC instruction start");
 		int reg = cbi.ToInteger(ir.IRGprnumber());
 		int count = cbi.ToInteger(ir.IRCount());
 		int lr = cbi.ToInteger(ir.IRlr());
-		String[] gpr = Integer.toString(gprList.get(reg).getValue()).split("",1);
-		String temp;
-		for (int i = 0; i < count; i++) {
-			if (lr == 1) { // rotate left
-				temp = gpr[0];
-				for (int j = 0; j < 16; j++) {
-					if (j != 15) {
-						gpr[j] = gpr[j + 1];
-					} else {
-						gpr[j] = temp;
-					}
-				}
-			} else { // rotate right
-				temp = gpr[15];
-				for (int j = 15; j >= 0; j--) {
-					if (j != 0) {
-						gpr[j] = gpr[j - 1];
-					} else {
-						gpr[j] = temp;
-					}
-				}
+		String gprNum = gprList.get(reg).getBitValue();
+		int registerLength = gprList.get(reg).getLength();
+		if (lr == 0) {
+			for(int i=0; i<count; i++) {
+				gprNum = gprNum.charAt(registerLength- 1) + gprNum.substring(0, registerLength - 1);
 			}
 		}
-		String gprNum = Arrays.toString(gpr);
-		gprList.get(reg).setValue(Integer.parseInt(gprNum));
+		else {
+			for(int i=0; i<count; i++) {
+				gprNum = gprNum.substring(1) + gprNum.charAt(0);
+			}
+		}
+		gprList.get(reg).setValue(Integer.parseInt(gprNum,2));
 		pc.setValue(pc.getValue()+1);
-		
+		logger.info("RRC instruction end");
 	}
 	private void SRC() {
+		
+		logger.info("SRC instruction Start");
 		int reg = cbi.ToInteger(ir.IRGprnumber());
 		int count = cbi.ToInteger(ir.IRCount());
 		int al = cbi.ToInteger(ir.IRal());
 		int lr = cbi.ToInteger(ir.IRlr());
-		String[] gpr = Integer.toString(gprList.get(reg).getValue()).split("",1);
-		
-		for (int i = 0; i < count; i++) {
-			if (lr == 1) { // shift left
-				for (int j = 0; j < 16; j++) {
-					if (j != 15) {
-						gpr[j] = gpr[j + 1];
-					} else {
-						gpr[j] = "0";
-					}
-				}
-			}
-			else { // shift right
-				for (int j = 15; j >= 0; j--) {
-					if (j != 0) {
-						gpr[j] = gpr[j - 1];
-					} else if (al == 1) { // logically shift
-						gpr[j] = "0";
-					} // if it's arithmetically shift, keep the sign bit.
-				}
-			}
+		String gprNum = gprList.get(reg).getBitValue();
+		String result = "";
+		if (lr == 0) {
+			result = rightShift(gprNum,count,al);
 		}
-		String gprNum = Arrays.toString(gpr);
-		gprList.get(reg).setValue(Integer.parseInt(gprNum));
+		else {
+			result = leftShift(gprNum,count);
+		}
+		
+		gprList.get(reg).setValue(Integer.parseInt(result, 2));
 		pc.setValue(pc.getValue()+1);
-		logger.info("RRC instruction end");
+		logger.info("SRC instruction end");
 		
 	}
 	private void IN() {

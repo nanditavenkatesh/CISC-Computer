@@ -35,6 +35,10 @@ public class Register {
     public String getBitValue() {
         return ToBinaryString();
     }
+    
+    public int getLength() {
+    	return length;
+    }
 
     //Do the security check (if overflow) and set the value to the register.
     
