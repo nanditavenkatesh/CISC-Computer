@@ -122,6 +122,7 @@ public class StimulatorWindow {
 	private GPRegister gpr2 = new GPRegister(2);
 	private GPRegister gpr3 = new GPRegister(3);
 	private ArrayList<GPRegister> gprList = new ArrayList<GPRegister>();
+	private IndexRegister ixr0 = new IndexRegister(0);
 	private IndexRegister ixr1 = new IndexRegister(1);
 	private IndexRegister ixr2 = new IndexRegister(2);
 	private IndexRegister ixr3 = new IndexRegister(3);
@@ -1481,8 +1482,8 @@ public class StimulatorWindow {
 		for(int i=0; i<gprList.size(); i++) {
 			GPRTextList.get(i).setText(gprList.get(i).getBitValue());
 		}
-		for(int i=0; i<ixrList.size(); i++) {
-			IXRTextList.get(i).setText(ixrList.get(i).getBitValue());
+		for(int i=1; i<ixrList.size(); i++) {
+			IXRTextList.get(i-1).setText(ixrList.get(i).getBitValue());
 		}
 		MAR.setText(mar.getBitValue());
 		MBR.setText(mbr.getBitValue());

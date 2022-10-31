@@ -30,6 +30,7 @@ public class Operations {
 	private GPRegister gpr2 = new GPRegister(2);
 	private GPRegister gpr3 = new GPRegister(3);
 	private ArrayList<GPRegister> gprList = new ArrayList<GPRegister>();
+	private IndexRegister ixr0 = new IndexRegister(0);
 	private IndexRegister ixr1 = new IndexRegister(1);
 	private IndexRegister ixr2 = new IndexRegister(2);
 	private IndexRegister ixr3 = new IndexRegister(3);
@@ -54,7 +55,7 @@ public class Operations {
 		this.memory = memory;
 		this.console = console;
 		gprList.add(gpr0); gprList.add(gpr1); gprList.add(gpr2); gprList.add(gpr3);
-		ixrList.add(ixr1); ixrList.add(ixr2); ixrList.add(ixr3); 
+		ixrList.add(ixr0); ixrList.add(ixr1); ixrList.add(ixr2); ixrList.add(ixr3); 
 		ccList.add(cc0); ccList.add(cc1); ccList.add(cc2); ccList.add(cc3);
 		deviceList.add(keyboard); deviceList.add(printer); deviceList.add(cardReader); 
 	}
