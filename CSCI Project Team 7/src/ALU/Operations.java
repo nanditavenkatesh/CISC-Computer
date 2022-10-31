@@ -792,7 +792,8 @@ public class Operations {
 			IN(); break;
 		case 62:
 			OUT(); break;
-		default: logger.severe("Invalid Operation Code!"); break;
+		default: logger.severe("Invalid Operation Code!");
+				 pc.setValue(pc.getValue()+1); break;
 		}
 		
 	}

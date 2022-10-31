@@ -1011,6 +1011,7 @@ public class StimulatorWindow {
 		CC3.setHorizontalAlignment(SwingConstants.CENTER);
 		CC3.setAlignmentX(0.5f);
 		ccbuttonList.add(CC0); ccbuttonList.add(CC1); ccbuttonList.add(CC2); ccbuttonList.add(CC3); 
+		ccList.add(cc0); ccList.add(cc1); ccList.add(cc2); ccList.add(cc3); 
 		GroupLayout gl_AddressRegisterPanel = new GroupLayout(AddressRegisterPanel);
 		gl_AddressRegisterPanel.setHorizontalGroup(
 			gl_AddressRegisterPanel.createParallelGroup(Alignment.LEADING)
