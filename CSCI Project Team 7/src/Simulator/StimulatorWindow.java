@@ -112,11 +112,13 @@ public class StimulatorWindow {
 	private JButton[] bitArray = new JButton[16];
 	private MemoryAddressRegister mar = new MemoryAddressRegister(0);
 	private MemoryBufferRegister mbr = new MemoryBufferRegister(0);
+	private MemoryFaultRegister mfr = new MemoryFaultRegister(0);
 	private InstructionRegister ir = new InstructionRegister(0);
 	private PCRegister pc = new PCRegister(0);
 	private Memory memory = new Memory();
 	private ConsoleLog console = new ConsoleLog();
-	private Operations operations = new Operations(memory, console);
+	private ConsolePrinter consolePrinter = new ConsolePrinter();
+	private Operations operations = new Operations(memory, console, consolePrinter);
 	private GPRegister gpr0 = new GPRegister(0);
 	private GPRegister gpr1 = new GPRegister(1);
 	private GPRegister gpr2 = new GPRegister(2);
@@ -134,7 +136,7 @@ public class StimulatorWindow {
 	private ArrayList<ConditionCode> ccList = new ArrayList<ConditionCode>();
 	StringBuilder fileContent = new StringBuilder();
 	private ConvertHexToBinary H2B = new ConvertHexToBinary();
-	private JButton ConsoleButton;
+	private JButton ConsoleLogButton;
 	private JRadioButton CC0;
 	private JLabel ConditionCode0;
 	private JLabel ConditionCode1;
@@ -144,6 +146,7 @@ public class StimulatorWindow {
 	private JLabel ConditionCode3;
 	private JRadioButton CC3;
 	private ArrayList<JRadioButton> ccbuttonList = new ArrayList<JRadioButton>();
+	private JButton ConsolePrinterButton;
 	/**
 	 * Launch the application.
 	 */
@@ -178,6 +181,7 @@ public class StimulatorWindow {
 		CSCIProjectTeam7.setFont(new Font("Dialog", Font.BOLD, 12));
 		CSCIProjectTeam7.setTitle("CSCI 6461 Project Team 7 Stimulator");
 		console.setVisible(false);
+		consolePrinter.setVisible(false);
 		CSCIProjectTeam7.getContentPane().addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -690,6 +694,8 @@ public class StimulatorWindow {
 			public void actionPerformed(ActionEvent e) {
 				//On click the MAR and MBR value are fetched and the value is written into the specified address
 				operations.store();
+				MAR.setText(operations.getMAR().getBitValue());
+				MFR.setText(operations.getMFR().getBitValue());
 				resetBitValue();
 			}
 			});
@@ -703,6 +709,7 @@ public class StimulatorWindow {
 				//On click the MAR and MBR value are fetched and the value is written into the specified address and the MAR is auto incremented by 1
 				operations.storePlus();
 				MAR.setText(operations.getMAR().getBitValue());
+				MFR.setText(operations.getMFR().getBitValue());
 				resetBitValue();
 			}
 			});
@@ -757,7 +764,7 @@ public class StimulatorWindow {
 			});
 		
 		//The init button or IPL is used to reset the memory and then load the instructions specified in the file onto the memory
-		IPLButton = new JButton("IPL");
+		IPLButton = new JButton("Init");
 		IPLButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				///On click a pop-up window is displayed to choose a .txt file
@@ -773,6 +780,7 @@ public class StimulatorWindow {
 					memory.clearMemory();
 					resetBitValue();
 					resetTextbox();
+					operations.clearAll();
 					String[] fileLines = newPopUpScreen.getCommands();
 					for( int i = 0; i<fileLines.length;i++) {
 						String[] command = fileLines[i].toUpperCase().split("\\s");
@@ -792,45 +800,59 @@ public class StimulatorWindow {
 		HaltLabel.setForeground(Color.BLACK);
 		HaltLabel.setFont(new Font("Tahoma", Font.BOLD, 22));
 		
-		ConsoleButton = new JButton("Console");
-		ConsoleButton.addActionListener(new ActionListener() {
+		ConsoleLogButton = new JButton("Console Log");
+		ConsoleLogButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				console.setVisible(true);
 			}
 		});
-		ConsoleButton.setFont(new Font("Calibri", Font.BOLD, 26));
+		ConsoleLogButton.setFont(new Font("Calibri", Font.BOLD, 26));
+		
+		ConsolePrinterButton = new JButton("Console Printer");
+		ConsolePrinterButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				consolePrinter.setVisible(true);
+			}
+		});
+		ConsolePrinterButton.setFont(new Font("Calibri", Font.BOLD, 26));
 		GroupLayout gl_ButtonPanel = new GroupLayout(ButtonPanel);
 		gl_ButtonPanel.setHorizontalGroup(
 			gl_ButtonPanel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_ButtonPanel.createSequentialGroup()
-					.addGap(28)
 					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_ButtonPanel.createSequentialGroup()
-							.addComponent(StoreButton, GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
+							.addGap(28)
+							.addComponent(StoreButton, GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(StorePlus, GroupLayout.DEFAULT_SIZE, 86, Short.MAX_VALUE))
-						.addComponent(ConsoleButton, GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE))
+							.addComponent(StorePlus, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+						.addGroup(gl_ButtonPanel.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(ConsoleLogButton)))
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_ButtonPanel.createSequentialGroup()
+							.addComponent(LoadButton, GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(LoadButton, GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(RunButton, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(SingleStep, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-							.addPreferredGap(ComponentPlacement.RELATED))
-						.addGroup(Alignment.TRAILING, gl_ButtonPanel.createSequentialGroup()
-							.addGap(228)
+							.addComponent(RunButton, GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE))
+						.addGroup(gl_ButtonPanel.createSequentialGroup()
+							.addComponent(ConsolePrinterButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)))
+					.addGap(7)
+					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.TRAILING)
+						.addGroup(gl_ButtonPanel.createSequentialGroup()
 							.addComponent(RunLabel)
-							.addGap(26)))
-					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
+							.addGap(26))
 						.addGroup(gl_ButtonPanel.createSequentialGroup()
-							.addComponent(IPLButton, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-							.addGap(25))
+							.addComponent(SingleStep, GroupLayout.PREFERRED_SIZE, 98, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)))
+					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_ButtonPanel.createSequentialGroup()
 							.addGap(10)
-							.addComponent(HaltLabel, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
-							.addContainerGap())))
+							.addComponent(HaltLabel, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_ButtonPanel.createSequentialGroup()
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(IPLButton, GroupLayout.DEFAULT_SIZE, 86, Short.MAX_VALUE)))
+					.addContainerGap())
 		);
 		gl_ButtonPanel.setVerticalGroup(
 			gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
@@ -841,18 +863,20 @@ public class StimulatorWindow {
 						.addComponent(StorePlus, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
 						.addComponent(LoadButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
 						.addComponent(RunButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
-						.addComponent(SingleStep, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
-						.addComponent(IPLButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE))
+						.addComponent(IPLButton, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
+						.addComponent(SingleStep, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_ButtonPanel.createSequentialGroup()
 							.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.BASELINE)
+								.addComponent(ConsoleLogButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(ConsolePrinterButton, GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE))
+							.addContainerGap())
+						.addGroup(gl_ButtonPanel.createSequentialGroup()
+							.addGroup(gl_ButtonPanel.createParallelGroup(Alignment.BASELINE)
 								.addComponent(RunLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(HaltLabel, GroupLayout.PREFERRED_SIZE, 17, GroupLayout.PREFERRED_SIZE))
-							.addGap(14))
-						.addGroup(gl_ButtonPanel.createSequentialGroup()
-							.addComponent(ConsoleButton)
-							.addContainerGap())))
+							.addGap(14))))
 		);
 		ButtonPanel.setLayout(gl_ButtonPanel);
 		
@@ -925,10 +949,9 @@ public class StimulatorWindow {
 			//On click the PC is loaded with the value sent in from the switches
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				operations.setPc(pc);
 				PC.setText(GetBitValue12());
 				pc.setValue(GetBitValue12());
-				operations.setPc(pc);
 				resetBitValue();
 			}
 		});
@@ -1405,6 +1428,7 @@ public class StimulatorWindow {
 		PC.setText("000000000000");
 		MAR.setText("000000000000");
 		MBR.setText("0000000000000000");
+		MFR.setText("0000");
 		IR.setText("0000000000000000");
 		GPR0.setText("0000000000000000");
 		GPR1.setText("0000000000000000");
@@ -1477,6 +1501,7 @@ public class StimulatorWindow {
 		ccList = operations.getCCList();
 		mar = operations.getMAR();
 		mbr = operations.getMBR();
+		mfr = operations.getMFR();
 		ir = operations.getIr();
 		pc = operations.getPc();
 		for(int i=0; i<gprList.size(); i++) {
@@ -1487,6 +1512,7 @@ public class StimulatorWindow {
 		}
 		MAR.setText(mar.getBitValue());
 		MBR.setText(mbr.getBitValue());
+		MFR.setText(mfr.getBitValue());
 		IR.setText(ir.getBitValue());
 		PC.setText(pc.getBitValue());
 		for(int i=0; i<ccList.size(); i++) {

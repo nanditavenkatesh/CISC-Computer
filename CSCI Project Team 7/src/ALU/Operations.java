@@ -1,8 +1,10 @@
 package ALU;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import Memory.Cache;
 import Memory.Memory;
 import Registers.ConditionCode;
 import Registers.GPRegister;
@@ -10,21 +12,28 @@ import Registers.IndexRegister;
 import Registers.InstructionRegister;
 import Registers.MemoryAddressRegister;
 import Registers.MemoryBufferRegister;
+import Registers.MemoryFaultRegister;
 import Registers.PCRegister;
 import Simulator.ConsoleLog;
+import Simulator.ConsolePrinter;
 import Utils.ConvertBinarytoInt;
 import Utils.ConvertHexToBinary;
 import Utils.ConvertIntegerToBinary;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 
 public class Operations {
 	private MemoryAddressRegister mar = new MemoryAddressRegister(0);
 	private MemoryBufferRegister mbr = new MemoryBufferRegister(0);
+	private MemoryFaultRegister mfr =new MemoryFaultRegister(0);
 	private InstructionRegister ir = new InstructionRegister(0);
 	private PCRegister pc = new PCRegister(0);
 	private Memory memory;
+	private Cache cache;
 	private GPRegister gpr0 = new GPRegister(0);
 	private GPRegister gpr1 = new GPRegister(1);
 	private GPRegister gpr2 = new GPRegister(2);
@@ -48,12 +57,16 @@ public class Operations {
 	private Devices keyboard = new Devices();
 	private Devices cardReader= new Devices();
 	private ArrayList<Devices> deviceList = new ArrayList<Devices>();
+	private ArrayList<Integer> charaterValues = new ArrayList<Integer>();
 	private final static Logger logger = Logger.getLogger("OperationsLogger");
 	private ConsoleLog console;
+	private ConsolePrinter consolePrinter;
 	
-	public Operations(Memory memory, ConsoleLog console) {
+	
+	public Operations(Memory memory, ConsoleLog console, ConsolePrinter consolePrinter) {
 		this.memory = memory;
 		this.console = console;
+		this.consolePrinter = consolePrinter;
 		gprList.add(gpr0); gprList.add(gpr1); gprList.add(gpr2); gprList.add(gpr3);
 		ixrList.add(ixr0); ixrList.add(ixr1); ixrList.add(ixr2); ixrList.add(ixr3); 
 		ccList.add(cc0); ccList.add(cc1); ccList.add(cc2); ccList.add(cc3);
@@ -101,6 +114,20 @@ public class Operations {
 	 */
 	public void setMbr(MemoryBufferRegister mbr) {
 		this.mbr = mbr;
+	}
+
+	/**
+	 * @return the mfr
+	 */
+	public MemoryFaultRegister getMFR() {
+		return mfr;
+	}
+
+	/**
+	 * @param mfr the mfr to set
+	 */
+	public void setMfr(MemoryFaultRegister mfr) {
+		this.mfr = mfr;
 	}
 
 	/**
@@ -251,7 +278,21 @@ public class Operations {
 		logger.info("Store Begins");
 		String addr = mar.getBitValue();
 		String value = mbr.getBitValue();
-		memory.setValue(addr, value);
+		int iaddr = cbi.ToInteger(addr);
+		//If address is greater than the MAX Size then set MFR to 1
+		if(iaddr >= memory.getMemoryMaxSize()) {
+			mfr.setValue(8);
+			logger.severe("Memory location out of bounds");
+		}
+		else {
+			if(iaddr >= 0 && iaddr <= 5) {
+				mfr.setValue(1);
+				logger.severe("Cannot perform Store in reserved memory locations");
+			}
+			else {
+				memory.setValue(addr, value);
+			}
+		}
 		logger.info("Store Ends");
 	}
 	
@@ -340,10 +381,26 @@ public class Operations {
 	private void STR() {
 		logger.info("STR Start");
 		int gprNumber = cbi.ToInteger(ir.IRGprnumber());
-		mar.setValue(getEA());
-		mbr.setValue(gprList.get(gprNumber).getValue());
-		store();
-		pc.setValue(pc.getValue()+1);
+		if(!(gprList.get(gprNumber).getIsStingValue())){
+			mar.setValue(getEA());
+			mbr.setValue(gprList.get(gprNumber).getValue());
+			store();
+			pc.setValue(pc.getValue()+1);
+		}
+		else {
+			int EA = getEA();
+			int asciiValue;
+			ArrayList<Integer> ascii = gprList.get(gprNumber).getCharacterValues();
+			for(int i = 0; i < ascii.size(); i++) {
+				mar.setValue(EA);
+				asciiValue = ascii.get(i);
+				mbr.setValue(asciiValue);
+				store();
+				EA = EA + 1;
+			}
+			gprList.get(gprNumber).setIsStingValue(false);
+			pc.setValue(pc.getValue()+1);
+		}
 		logger.info("STR Ends");
 	}
 	
@@ -665,7 +722,6 @@ public class Operations {
 		logger.info("RRC instruction end");
 	}
 	private void SRC() {
-		
 		logger.info("SRC instruction Start");
 		int reg = cbi.ToInteger(ir.IRGprnumber());
 		int count = cbi.ToInteger(ir.IRCount());
@@ -693,7 +749,18 @@ public class Operations {
 			if(devid == 0) {
 				String input = "";
 				input = JOptionPane.showInputDialog("Please give the input");
-				gprList.get(register).setValue(Integer.valueOf(input));
+				if (input.matches("[0-9]+")) {
+					gprList.get(register).setValue(Integer.valueOf(input));
+				}
+				else {
+					gprList.get(register).setIsStingValue(true);
+					charaterValues.clear();
+					for(int i = 0; i<input.length();i++) {
+						charaterValues.add(Integer.valueOf(input.charAt(i)));
+					}
+					gprList.get(register).setCharacterValues(charaterValues);
+					gprList.get(register).setValue(Integer.valueOf(input.charAt(0)));
+				}
 			}
 			else {
 				int value = deviceList.get(devid).getValue();
@@ -702,7 +769,7 @@ public class Operations {
 			}	
 		}
 		else {
-			logger.info("IN instruction end with no action.");
+			logger.info("IN instruction end with no action as cannot input with printer.");
 		}
 		pc.setValue(pc.getValue()+1);
 		
@@ -714,8 +781,12 @@ public class Operations {
 		int value = gprList.get(register).getValue();
 		if(devid != 0) {
 			if(devid == 1) {
-				JOptionPane.showInternalMessageDialog(null, "Printer value is " + String.valueOf(value));
-				console.setText("Printer value is" + String.valueOf(value));
+				if(value <= 9) {
+					consolePrinter.printText(String.valueOf(value));
+				}
+				else {
+					consolePrinter.printText(String.valueOf((char)value));
+				}
 			}
 			else {
 				deviceList.get(devid).setValue(value);
@@ -733,6 +804,34 @@ public class Operations {
 		pc.setValue(pc.getValue()+1);
 		logger.info("HLT End");
 	}
+	
+	public void TRAP() {
+		logger.info("TRAP instruction start.");
+		int trapCode = cbi.ToInteger(ir.IRCount());
+		if(trapCode>15 || trapCode<0) {
+	        	mfr.setValue(2); // Illegal Code	
+	        }
+		// Storing the value of  PC+1 in the memory location 2
+		memory.setValue(cib.ToBinary(2),cib.ToBinary(pc.getValue()+1));
+		pc.setValue(cib.ToBinary(trapCode + memory.getValue(cib.ToBinary(0))));
+		logger.info("TRAP instruction end.");
+		
+	}
+	
+	public void CHK() {
+        logger.info("CHK instruction start.");
+        int register = cbi.ToInteger(ir.IRGprnumber());
+        int devid = cbi.ToInteger(ir.IRAddress());
+        if (devid >= 0 && devid < 32) {
+            // Check Status of the Devices.
+            gprList.get(register).setValue(1);
+        } else {
+            logger.info("Invalid- DEVID>32");
+        }
+        pc.setValue(pc.getValue()+1);
+        logger.info("CHK instruction end.");
+    }
+	
 	public void operation() {
 		//Calling function from the IR Class to fetch the operation bits 
 		int operation = cbi.ToInteger(ir.IROperation()); 
@@ -781,6 +880,8 @@ public class Operations {
 			ORR(); break;
 		case 25:
 			NOT(); break;
+		case 30:
+			TRAP();break;
 		case 31:
 			SRC(); break;
 		case 32:
@@ -793,10 +894,27 @@ public class Operations {
 			IN(); break;
 		case 62:
 			OUT(); break;
-		default: logger.severe("Invalid Operation Code!");
-				 pc.setValue(pc.getValue()+1); break;
+		default: mfr.setValue(4); 
+				logger.severe("Invalid Operation Code!");
+				pc.setValue(pc.getValue()+1); break;
 		}
 		
+	}
+	
+	public void clearAll() {
+		mar.setValue(0);
+		mbr.setValue(0);
+		mfr.setValue(0);
+		ir.setValue(0);
+		pc.setValue(0);
+		memory.clearMemory();;
+		cache.ClearCache();
+		for (int i = 0; i < gprList.size(); i++)
+			gprList.get(i).setValue(0);
+		for (int i = 0; i < ixrList.size(); i++)
+			ixrList.get(i).setValue(0);
+		for (int i = 0; i < ccList.size(); i++)
+			ccList.get(i).setValue(0);
 	}
 	
 }

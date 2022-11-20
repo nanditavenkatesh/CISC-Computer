@@ -55,5 +55,9 @@ public class Cache {
         }
         logging.info("TOTAL DUMPED " + cache.size() + " CACHE LOGS.");
     }
-
+    
+    public void ClearCache() {
+    	cache.clear();
+    	cache.setSize(16);
+    }
 }

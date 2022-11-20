@@ -72,5 +72,9 @@ public class Memory {
 	public void clearMemory() {
 		memory.clear();
 	}
+	//Get Memory Maximum size
+	public int getMemoryMaxSize() {
+		return maxSize;
+	}
 
 }
