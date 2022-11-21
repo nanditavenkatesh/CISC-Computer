@@ -764,7 +764,7 @@ public class StimulatorWindow {
 			});
 		
 		//The init button or IPL is used to reset the memory and then load the instructions specified in the file onto the memory
-		IPLButton = new JButton("Init");
+		IPLButton = new JButton("IPL");
 		IPLButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				///On click a pop-up window is displayed to choose a .txt file
