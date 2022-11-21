@@ -306,6 +306,7 @@ public class Operations {
 	public void singleStep() {
 		logger.info("Single Step Begins");
 		String PCvalue = pc.getBitValue();
+		logger.info("PC value "+pc.getValue());
 		int i = memory.getValue(PCvalue);
 		ir.setValue(i);
 		operation();
@@ -417,8 +418,11 @@ public class Operations {
 		//Calling function from the IR Class to fetch the IXR bits 
 		int ixrNumber = cbi.ToInteger(ir.IRIndexNumber());
 		mar.setValue(getEA());
+		logger.info("mar value"+mar.getValue());
 		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
+		logger.info("mbr value"+mbr.getValue());
 		ixrList.get(ixrNumber).setValue(mbr.getValue());
+		logger.info("ixr value"+ixrList.get(ixrNumber).getValue());
 		pc.setValue(pc.getValue()+1);
 		logger.info("LDX End");
 	}
@@ -440,6 +444,7 @@ public class Operations {
 		
 	}
 	private void JCC() {
+		logger.info("JCC Start");
 		int ccNumber = cbi.ToInteger(ir.IRGprnumber());
 		int ccValue = ccList.get(ccNumber).getValue();
 		if (ccValue == 1) {
@@ -448,6 +453,7 @@ public class Operations {
 		else {
 			pc.setValue(pc.getValue() +  1);
 		}
+		logger.info("JCC Ends");
 		
 	}
 	private void JNE() {
@@ -808,7 +814,7 @@ public class Operations {
 	public void TRAP() {
 		logger.info("TRAP instruction start.");
 		int trapCode = cbi.ToInteger(ir.IRCount());
-		if(trapCode>15 || trapCode<0) {
+		if(trapCode > 15 || trapCode < 0 || (trapCode + memory.getValue(cib.ToBinary(0))==0)) {
 	        	mfr.setValue(2); // Illegal Code	
 	        }
 		// Storing the value of  PC+1 in the memory location 2
@@ -894,6 +900,8 @@ public class Operations {
 			IN(); break;
 		case 62:
 			OUT(); break;
+		case 63:
+			CHK(); break;
 		default: mfr.setValue(4); 
 				logger.severe("Invalid Operation Code!");
 				pc.setValue(pc.getValue()+1); break;
@@ -908,7 +916,7 @@ public class Operations {
 		ir.setValue(0);
 		pc.setValue(0);
 		memory.clearMemory();;
-		cache.ClearCache();
+//		cache.ClearCache();
 		for (int i = 0; i < gprList.size(); i++)
 			gprList.get(i).setValue(0);
 		for (int i = 0; i < ixrList.size(); i++)
