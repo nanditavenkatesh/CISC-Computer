@@ -406,6 +406,18 @@ public class Operations {
         return value;
 	}
 	
+	public void CMP() {
+		int main = gprList.get(1).getValue();
+        int smallest = gprList.get(2).getValue();
+        int next = gprList.get(3).getValue();
+        int oldDiff = main - smallest;
+        int newDiff = main - next;
+        if (oldDiff > newDiff) {
+            gprList.get(2).setValue(next);
+        }
+        pc.setValue(pc.getValue()+1);
+	}
+	
 	public float binaryToFloatingPoint(FPRegister fr) {
         double result = 0;
         String mantissa = fr.getMantissaValue_String();
@@ -1156,6 +1168,8 @@ public class Operations {
 			ORR(); break;
 		case 25:
 			NOT(); break;
+		case 26:
+			CMP(); break;
 		case 30:
 			TRAP(); break;
 		case 31:
