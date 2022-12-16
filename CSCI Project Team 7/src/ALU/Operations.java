@@ -7,6 +7,7 @@ import java.util.Arrays;
 import Memory.Cache;
 import Memory.Memory;
 import Registers.ConditionCode;
+import Registers.FPRegister;
 import Registers.GPRegister;
 import Registers.IndexRegister;
 import Registers.InstructionRegister;
@@ -44,6 +45,9 @@ public class Operations {
 	private IndexRegister ixr2 = new IndexRegister(2);
 	private IndexRegister ixr3 = new IndexRegister(3);
 	private ArrayList<IndexRegister> ixrList = new ArrayList<IndexRegister>();
+	private FPRegister fpr0 = new FPRegister(0);
+	private FPRegister fpr1 = new FPRegister(1);
+	private ArrayList<FPRegister> fprList = new ArrayList<FPRegister>();
 	private ConditionCode cc0 = new ConditionCode(0);
 	private ConditionCode cc1 = new ConditionCode(1);
 	private ConditionCode cc2 = new ConditionCode(2);
@@ -68,7 +72,8 @@ public class Operations {
 		this.console = console;
 		this.consolePrinter = consolePrinter;
 		gprList.add(gpr0); gprList.add(gpr1); gprList.add(gpr2); gprList.add(gpr3);
-		ixrList.add(ixr0); ixrList.add(ixr1); ixrList.add(ixr2); ixrList.add(ixr3); 
+		ixrList.add(ixr0); ixrList.add(ixr1); ixrList.add(ixr2); ixrList.add(ixr3);
+		fprList.add(fpr0);fprList.add(fpr1);
 		ccList.add(cc0); ccList.add(cc1); ccList.add(cc2); ccList.add(cc3);
 		deviceList.add(keyboard); deviceList.add(printer); deviceList.add(cardReader); 
 	}
@@ -82,6 +87,10 @@ public class Operations {
 	
 	public ArrayList<IndexRegister> getIXRList(){
 		return ixrList;
+	}
+	
+	public ArrayList<FPRegister> getFPRList(){
+		return fprList;
 	}
 	
 	public ArrayList<ConditionCode> getCCList(){
@@ -256,6 +265,34 @@ public class Operations {
 		this.ixr3 = ixr3;
 	}
 	
+	/**
+	 * @return the gpr0
+	 */
+	public FPRegister getFpr0() {
+		return fpr0;
+	}
+
+	/**
+	 * @param gpr0 the gpr0 to set
+	 */
+	public void setFpr0(String fpr0) {
+		this.fpr0.setValue(fpr0);
+	}
+
+	/**
+	 * @return the gpr1
+	 */
+	public FPRegister getFpr1() {
+		return fpr1;
+	}
+
+	/**
+	 * @param gpr1 the gpr1 to set
+	 */
+	public void setFpr1(String fpr1) {
+		this.fpr1.setValue(fpr1);
+	}
+	
 	// getting the low 16 bits of an integer
 	private int getLowOrderBits(int x) {
 		return (x & 0xFFFF);
@@ -300,7 +337,7 @@ public class Operations {
 		logger.info("Store Plus Begins");
 		store();
 		mar.setValue(mar.getValue()+1);
-		logger.info("Store Plus incremented MAR by 1");
+		logger.info("Store Plus incremented MAR by 1. Store Plus ends.");
 	}
 	
 	public void singleStep() {
@@ -368,6 +405,98 @@ public class Operations {
 
         return value;
 	}
+	
+	public float binaryToFloatingPoint(FPRegister fr) {
+        double result = 0;
+        String mantissa = fr.getMantissaValue_String();
+        int sign = fr.getSignBit_Integer();
+        int exponent = fr.getExponentValue_Integer();
+        int bias = 63;
+        double exponentValue = Math.pow(2.0, (double)(exponent - bias));
+        double half = 0.5;
+        double mantissaValue = 1;
+        for (int i = 0; i < mantissa.length(); i++) {
+            int bit = Integer.valueOf(mantissa.substring(i, i + 1));
+            mantissaValue += half * bit;
+            half = half / 2;
+        }
+        result = sign * exponentValue * mantissaValue;
+        return (float) result;
+    }
+	public int floatingPointToBinaryInt(float value) {
+        // Get Sign
+        String sign;
+        if (value >= 0) {
+            sign = "0";
+        } else {
+            sign = "1";
+        }
+        // Get Exponent
+        int exponent = findExponent(value) + 63;
+        if (exponent > (63 + 64)) {
+        	logger.info("Exponent more than the limit");
+            return 0;
+        }
+        String exponentBinary = toBinaryString(exponent, 7);
+        String Mantissa = calculateMantissa(value, exponent - 63);
+        return setFPValue(sign, exponentBinary, Mantissa);
+    }
+	private String calculateMantissa(float value, int exponetInt) {
+        value = Math.abs(value);
+        Double exponetDouble = Math.pow(2, exponetInt);
+        double a = value / exponetDouble - 1;
+        double half = 0.5;
+        String result = "";
+        while (result.length() != 8) {
+            if (a > half) {
+                result += "1";
+                a -= half;
+            } else {
+                result += "0";
+            }
+            half = half / 2;
+        }
+        return result;
+    }
+
+    private String toBinaryString(int val, int length) {
+        String value = Integer.toBinaryString(val);// Change to BinaryString
+        if (value.length() == 32 && value.substring(0, 1).equals("1")) {
+            // Negative number
+            return value;
+        }
+        String Stringlength = "" + length;
+        String format = "%0numberd".replace("number", Stringlength);
+        return String.format(format, Long.valueOf(value));//
+    }
+
+
+    private int findExponent(float value) {
+        int num = 1;
+        int i = 0;
+        while (value > num) {
+        	num = num * 2;
+            i = i + 1;
+        }
+        return i - 1;
+    }
+    
+    public int setFPValue(String sign, String exponent, String mantissa) {
+        if (sign.length() != 1) {
+        	logger.info("Floating Point sign Length Error.");
+        }
+        if (exponent.length() != 7) {
+        	logger.info("Floating Point exponent Length Error.");
+
+        }
+        if (mantissa.length() != 8) {
+        	logger.info("Floating Point mantissa Length Error.");
+        }
+        String value = sign + exponent + mantissa;
+        return Integer.parseInt(value, 2);
+
+    }
+	
 	public void LDR() {
 		logger.info("LDR Start");
 		//Calling function from the IR Class to fetch the GPR bits 
@@ -781,7 +910,7 @@ public class Operations {
 		
 	}
 	private void OUT() {
-		logger.info("IN instruction start.");
+		logger.info("OUT instruction start.");
 		int register = cbi.ToInteger(ir.IRGprnumber());
 		int devid = cbi.ToInteger(ir.IRAddress());
 		int value = gprList.get(register).getValue();
@@ -793,6 +922,9 @@ public class Operations {
 				else {
 					consolePrinter.printText(String.valueOf((char)value));
 				}
+			}
+			else if (devid == 2) {
+				consolePrinter.printText(String.valueOf(value));
 			}
 			else {
 				deviceList.get(devid).setValue(value);
@@ -838,12 +970,150 @@ public class Operations {
         logger.info("CHK instruction end.");
     }
 	
+	public void FADD() {
+		logger.info("FADD instruction start.");
+        int frNumber = cbi.ToInteger(ir.IRGprnumber());
+        
+        if(frNumber == 0 || frNumber == 1) {
+        	float FRvalue = binaryToFloatingPoint(fprList.get(frNumber));
+        	mar.setValue(getEA());
+    		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
+    		int content = mbr.getValue();
+    		float total = (float)content + FRvalue;
+    		fprList.get(frNumber).setValue(floatingPointToBinaryInt(total));   		
+        }
+        else {
+        	logger.info("Floating point register number should be 0 or 1");
+        }
+        pc.setValue(pc.getValue()+1);
+        logger.info("FADD instruction end.");
+	}
+	
+	public void FSUB() {
+		logger.info("FSUB instruction start.");
+        int frNumber = cbi.ToInteger(ir.IRGprnumber());
+        
+        if(frNumber == 0 || frNumber == 1) {
+        	float FRvalue = binaryToFloatingPoint(fprList.get(frNumber));
+        	mar.setValue(getEA());
+    		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
+    		int content = mbr.getValue();
+    		float total = FRvalue - (float)content;
+    		logger.info(" " + FRvalue + " - " + (float)(content)+ "= " + total);
+    		fprList.get(frNumber).setValue(floatingPointToBinaryInt(total));	
+        }
+        else {
+        	logger.info("Floating point register number should be 0 or 1");
+        }
+        pc.setValue(pc.getValue()+1);
+        logger.info("FSUB instruction end.");
+	}
+	
+	public void CNVRT() {
+		logger.info("CNVRT instruction start.");
+        int gprNumber = cbi.ToInteger(ir.IRGprnumber());
+        int gprValue = gprList.get(gprNumber).getValue();
+        mar.setValue(getEA());
+		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
+		if(gprValue == 0) {
+        	int content = mbr.getValue();
+        	int prevValue = fprList.get(0).getValue();
+        	fprList.get(0).setValue(content);
+        	float FRvalue = binaryToFloatingPoint(fprList.get(0));
+        	int integerValue = Math.round(FRvalue);
+        	gprList.get(cbi.ToInteger(ir.IRGprnumber())).setValue(integerValue);
+    		fprList.get(0).setValue(prevValue);   		
+        }
+        if(gprValue == 1) {
+        	int content = mbr.getValue();
+        	float value = (float)content;
+        	fprList.get(0).setValue(floatingPointToBinaryInt(value));      	
+        }        
+        pc.setValue(pc.getValue()+1);
+        logger.info("FADD instruction end.");
+	}
+	
+	private void VADD() {
+		logger.info("VADD Start");
+		int fprNumber = cbi.ToInteger(ir.IRGprnumber());
+		int VectorLength = fprList.get(fprNumber).getValue();
+		mar.setValue(getEA());
+		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
+		int Vector1BaseAdd = mbr.getValue();
+		mar.setValue(getEA()+1);
+		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
+		int Vector2BaseAdd = mbr.getValue();
+		for (int i = 0; i < VectorLength; i++) {
+          int Vector1CurrentValue = memory.getValue(cib.ToBinary(Vector1BaseAdd+i));
+          int Vector2CurrentValue = memory.getValue(cib.ToBinary(Vector2BaseAdd+i));
+          logger.info("VADD:Length= " +VectorLength+" Current= "+i+" Vector1Base= "+Vector1BaseAdd+" Vector1Value= "+Vector1CurrentValue+" Vector2Base= "+Vector2BaseAdd+" Vector2Value= "+Vector2CurrentValue);
+          mar.setValue(Vector1BaseAdd+i);
+          mbr.setValue(Vector1CurrentValue + Vector2CurrentValue);
+          store();
+		}
+		pc.setValue(pc.getValue()+1);
+		logger.info("VADD Ends");
+	}
+	
+	private void VSUB() {
+		logger.info("VSUB Start");
+		int fprNumber = cbi.ToInteger(ir.IRGprnumber());
+		int VectorLength = fprList.get(fprNumber).getValue();
+		mar.setValue(getEA());
+		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
+		int Vector1BaseAdd = mbr.getValue();
+		mar.setValue(getEA()+1);
+		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
+		int Vector2BaseAdd = mbr.getValue();
+		for (int i = 0; i < VectorLength; i++) {
+          int Vector1CurrentValue = memory.getValue(cib.ToBinary(Vector1BaseAdd+i));
+          int Vector2CurrentValue = memory.getValue(cib.ToBinary(Vector2BaseAdd+i));
+          logger.info("VSUB:Length= " +VectorLength+" Current= "+i+" Vector1Base= "+Vector1BaseAdd+" Vector1Value= "+Vector1CurrentValue+" Vector2Base= "+Vector2BaseAdd+" Vector2Value= "+Vector2CurrentValue);
+          mar.setValue(Vector1BaseAdd+i);
+          mbr.setValue(Vector1CurrentValue - Vector2CurrentValue);
+          store();
+		}
+		pc.setValue(pc.getValue()+1);
+		logger.info("VSUB Ends");
+	}
+	
+	public void LDFR() {
+		logger.info("LDFR Start");
+		//Calling function from the IR Class to fetch the GPR bits 
+		int fprNumber = cbi.ToInteger(ir.IRGprnumber());
+		mar.setValue(getEA());
+		mbr.setValue(memory.getValue(cib.ToBinary12(mar.getValue())));
+		if (fprNumber == 0 | fprNumber == 1) {
+			fprList.get(fprNumber).setValue(mbr.getValue());
+		}
+		else {
+			logger.info("FPR should be 0 or 1");
+		}
+		pc.setValue(pc.getValue()+1);
+		logger.info("LDFR End");
+	}
+
+	private void STFR() {
+		logger.info("STFR Start");
+		int fprNumber = cbi.ToInteger(ir.IRGprnumber());
+		if( fprNumber == 0 | fprNumber == 1){
+			mar.setValue(getEA());
+			mbr.setValue(fprList.get(fprNumber).getValue());
+			store();	
+		}
+		else {
+			logger.info("FPR should be 0 or 1");
+		}
+		pc.setValue(pc.getValue()+1);
+		logger.info("STFR Ends");
+	}
+	
 	public void operation() {
 		//Calling function from the IR Class to fetch the operation bits 
 		int operation = cbi.ToInteger(ir.IROperation()); 
 		switch(operation) {
 		case 0: 
-			HLT();break;
+			HLT(); break;
 		case 1:
 			LDR(); break;
 		case 2:
@@ -887,15 +1157,29 @@ public class Operations {
 		case 25:
 			NOT(); break;
 		case 30:
-			TRAP();break;
+			TRAP(); break;
 		case 31:
 			SRC(); break;
 		case 32:
 			RRC(); break;
+		case 33: 
+			FADD(); break;
+		case 34:  
+			FSUB(); break;
+		case 35: 
+			VADD(); break;
+		case 36:
+			VSUB(); break;
+		case 37:
+			CNVRT(); break;
 		case 41:
 			LDX(); break;
 		case 42:
 			STX(); break;
+		case 50:
+			LDFR(); break;
+		case 51:
+			STFR(); break;
 		case 61:
 			IN(); break;
 		case 62:
@@ -919,6 +1203,8 @@ public class Operations {
 //		cache.ClearCache();
 		for (int i = 0; i < gprList.size(); i++)
 			gprList.get(i).setValue(0);
+		for (int i = 0; i < fprList.size(); i++)
+			fprList.get(i).setValue(0);
 		for (int i = 0; i < ixrList.size(); i++)
 			ixrList.get(i).setValue(0);
 		for (int i = 0; i < ccList.size(); i++)
