@@ -412,7 +412,7 @@ public class Operations {
         int next = gprList.get(3).getValue();
         int oldDiff = main - smallest;
         int newDiff = main - next;
-        if (oldDiff > newDiff) {
+        if (Math.abs(oldDiff) > Math.abs(newDiff) {
             gprList.get(2).setValue(next);
         }
         pc.setValue(pc.getValue()+1);
