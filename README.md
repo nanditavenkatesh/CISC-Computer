@@ -1,4 +1,4 @@
-# Team 7 Machine Simulator
+# CSIC Machine Simulator in Java
 
 ## Overview
 The Machine Simulator is a project designed to simulate a conventional CISC (Complex Instruction Set Computer) architecture. Developed in Java, the simulator mimics a basic computer system, complete with General Purpose Registers (GPRs), Index Registers (IXRs), memory, and a control unit. The project was built as part of CSCI 6461 - Computer System Architecture, Fall 2022, under the supervision of Professor Morris Lancaster.
